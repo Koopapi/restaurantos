@@ -4,6 +4,17 @@ API REST + WebSocket (Node.js + Express + `ws`). Fase piloto: **store en memoria
 
 ## Correr
 
+### Con Docker (desde la raíz del repo)
+
+```bash
+bash scripts/bootstrap.sh   # genera .env, construye la imagen y levanta el contenedor
+```
+
+El `Dockerfile` (Node 20 alpine, usuario sin privilegios) y el
+`infra/docker-compose.yml` viven en el repo; el healthcheck usa `GET /api/health`.
+
+### Sin Docker
+
 ```bash
 npm install
 cp .env.example .env
