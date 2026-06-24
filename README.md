@@ -13,7 +13,9 @@ Sistema de punto de venta y operación en vivo para restaurante (caso real: mari
 ```
 RestaurantOS/
 ├── app/            # Aplicación Flutter (Material 3) — Android
-├── backend/        # API REST + WebSocket (Node + Express)
+├── backend/        # API REST + WebSocket (Node + Express) + Dockerfile
+├── infra/          # docker-compose del stack
+├── scripts/        # bootstrap.sh (levanta todo con un comando)
 ├── docs/
 │   ├── design/     # System design + pantallas exportadas (PNG)
 │   ├── specs/      # Especificaciones de diseño/implementación
@@ -24,12 +26,31 @@ RestaurantOS/
 
 ## Requisitos
 
+- **Docker** + Docker Compose — vía recomendada para el backend.
+- **Node.js** 20+ — para correr el `backend/` sin contenedor.
 - **Flutter** 3.22+ (Dart 3) y Android SDK — para `app/`.
-- **Node.js** 20+ — para `backend/`.
 
-## Cómo correr (cuando el código esté disponible)
+## Cómo correr
 
-Backend:
+### Backend con Docker (recomendado)
+
+Un solo comando genera el `.env` (con `JWT_SECRET` autogenerado), construye la
+imagen y levanta el contenedor:
+
+```bash
+bash scripts/bootstrap.sh
+# API → http://localhost:4000/api · WS → ws://localhost:4000/ws
+```
+
+Operación manual del stack:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml up -d --build   # levantar
+docker compose --env-file .env -f infra/docker-compose.yml logs -f backend # logs
+docker compose --env-file .env -f infra/docker-compose.yml down            # detener
+```
+
+### Backend sin Docker
 
 ```bash
 cd backend
