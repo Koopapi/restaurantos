@@ -9,7 +9,7 @@ Guía única para continuar el proyecto en VS Code (con Claude Code) sin depende
 | Diseño (Pencil) | ✅ 23 pantallas + system design. Exportado en `docs/design/`. (Editable solo en Pencil/Cowork.) |
 | Repo + CI/CD | ✅ Monorepo, ramas `main`/`develop` protegidas, Backend CI en verde. |
 | Backend — ciclo de servicio | ✅ Implementado y verificado (9/9 tests + smoke). `backend/src/`. |
-| Backend — administración | ⏳ Pendiente. Spec en `docs/api-admin.md`. |
+| Backend — administración | ✅ Implementado y verificado (22/22 tests + smoke). `backend/src/routes/` + `src/store/admin.js`. |
 | App Flutter | ⏳ Pendiente. Spec en `docs/specs/RestaurantOS-Flutter-Material3.md` + starter en `docs/flutter-starter/`. |
 
 ## 2. Estructura
@@ -45,7 +45,7 @@ Backend:
 ```bash
 cd backend
 npm install
-npm test            # node:test (9 pruebas)
+npm test            # node:test (22 pruebas: ciclo de servicio + administración)
 npm start           # http://localhost:4000 · ws://localhost:4000
 # login demo: emp_carlos / 2222 (mesero), emp_sofia / 6666 (admin)
 ```

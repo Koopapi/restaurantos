@@ -15,14 +15,15 @@ export class ApiError extends Error {
     this.code = code;
   }
 }
-const notFound = (what) => new ApiError(404, 'NOT_FOUND', `${what} no encontrado`);
-const conflict = (msg) => new ApiError(409, 'CONFLICT', msg);
-const invalid = (msg) => new ApiError(422, 'VALIDATION', msg);
+export const notFound = (what) => new ApiError(404, 'NOT_FOUND', `${what} no encontrado`);
+export const conflict = (msg) => new ApiError(409, 'CONFLICT', msg);
+export const invalid = (msg) => new ApiError(422, 'VALIDATION', msg);
+export const forbidden = (msg) => new ApiError(403, 'FORBIDDEN', msg);
 
 // ---------------------------------------------------------------------------
-// State
+// State (shared with store/admin.js — exported so admin mutations reuse it)
 // ---------------------------------------------------------------------------
-const db = {
+export const db = {
   employees: [],
   tables: [],
   menu: [],
@@ -30,11 +31,17 @@ const db = {
   tickets: [],
   waitlist: [],
   config: null,
+  // administración (fase 2)
+  menuCollections: [],
+  inventory: [],
+  purchaseOrders: [],
+  shifts: [],
 };
 
 let seq = 0;
-const id = (prefix) => `${prefix}_${++seq}`;
-const now = () => new Date().toISOString();
+export const id = (prefix) => `${prefix}_${++seq}`;
+export const now = () => new Date().toISOString();
+export const round2 = (n) => Math.round(n * 100) / 100;
 
 // ---------------------------------------------------------------------------
 // Seed (El Pirrus demo)
@@ -95,8 +102,121 @@ export function seed(overrides = {}) {
   db.accounts = [];
   db.tickets = [];
   db.waitlist = [];
+
+  seedAdmin();
   return db;
 }
+
+// Demo data for the administration layer: menu collections, inventory (some
+// below minimum), shifts for the current week, and paid accounts spread across
+// recent days so reports/dashboard have numbers.
+function seedAdmin() {
+  db.menuCollections = [
+    { id: id('col'), name: 'Menú Almuerzo', active: true, schedule: '12:00-17:00', itemIds: db.menu.slice(0, 5).map((m) => m.id) },
+    { id: id('col'), name: 'Menú Cena', active: false, schedule: '18:00-23:00', itemIds: db.menu.map((m) => m.id) },
+    { id: id('col'), name: 'Barra', active: false, schedule: null, itemIds: db.menu.filter((m) => m.station === 'barra').map((m) => m.id) },
+  ];
+
+  const inv = (name, category, unit, stock, minStock, cost, supplier, autoReorder = false) => ({
+    id: id('inv'),
+    name,
+    category,
+    unit,
+    stock,
+    minStock,
+    status: stock < minStock ? 'bajo' : 'ok',
+    autoReorder,
+    supplier: supplier ?? null,
+    cost,
+    lastRestock: now(),
+  });
+  db.inventory = [
+    inv('Camarón', 'Mariscos', 'kg', 8, 12, 220, 'Pesca del Pacífico', true),
+    inv('Pescado blanco', 'Mariscos', 'kg', 15, 10, 160, 'Pesca del Pacífico'),
+    inv('Pulpo', 'Mariscos', 'kg', 3, 6, 280, 'Pesca del Pacífico', true),
+    inv('Limón', 'Frutas y verduras', 'kg', 4, 10, 28, 'Central de Abastos'),
+    inv('Cebolla morada', 'Frutas y verduras', 'kg', 9, 8, 22, 'Central de Abastos'),
+    inv('Aguacate', 'Frutas y verduras', 'kg', 5, 8, 75, 'Central de Abastos', true),
+    inv('Cilantro', 'Frutas y verduras', 'manojo', 30, 20, 8, 'Central de Abastos'),
+    inv('Chile serrano', 'Frutas y verduras', 'kg', 2, 5, 40, 'Central de Abastos'),
+    inv('Tostadas', 'Abarrotes', 'paquete', 40, 15, 35, 'Distribuidora Sol'),
+    inv('Cerveza clara', 'Bebidas', 'caja', 6, 10, 320, 'Cervecera Regional', true),
+    inv('Tequila', 'Bebidas', 'botella', 12, 6, 380, 'Licores MX'),
+    inv('Refresco', 'Bebidas', 'caja', 4, 8, 180, 'Distribuidora Sol'),
+  ];
+
+  // Turnos de la semana (lunes a domingo de la semana que contiene "hoy").
+  db.shifts = [];
+  const monday = startOfWeek(new Date());
+  const waiters = ['emp_maria', 'emp_carlos', 'emp_ana', 'emp_luis', 'emp_valeria'];
+  for (let d = 0; d < 5; d++) {
+    const date = isoDate(addDays(monday, d));
+    db.shifts.push({ id: id('shift'), employeeId: waiters[d % waiters.length], date, type: 'matutino', start: '08:00', end: '16:00' });
+    db.shifts.push({ id: id('shift'), employeeId: waiters[(d + 1) % waiters.length], date, type: 'vespertino', start: '16:00', end: '23:00' });
+  }
+
+  // Cuentas pagadas demo (varios días, métodos y meseros).
+  db.purchaseOrders = [];
+  seedPaidAccounts();
+}
+
+function seedPaidAccounts() {
+  const today = new Date();
+  const samples = [
+    { daysAgo: 0, waiterId: 'emp_maria', serviceType: 'mesa', items: [[0, 2], [5, 3]], method: 'tarjeta', tip: 50 },
+    { daysAgo: 0, waiterId: 'emp_carlos', serviceType: 'llevar', items: [[2, 1], [7, 2]], method: 'efectivo', tip: 0 },
+    { daysAgo: 1, waiterId: 'emp_maria', serviceType: 'mesa', items: [[1, 1], [6, 2]], method: 'tarjeta', tip: 40 },
+    { daysAgo: 2, waiterId: 'emp_carlos', serviceType: 'domicilio', items: [[3, 2], [8, 1]], method: 'transferencia', tip: 30 },
+    { daysAgo: 4, waiterId: 'emp_maria', serviceType: 'mesa', items: [[0, 1], [4, 1], [5, 2]], method: 'efectivo', tip: 20 },
+    { daysAgo: 9, waiterId: 'emp_carlos', serviceType: 'mesa', items: [[2, 3]], method: 'tarjeta', tip: 60 },
+    { daysAgo: 20, waiterId: 'emp_maria', serviceType: 'mesa', items: [[1, 2], [9, 1]], method: 'efectivo', tip: 0 },
+  ];
+
+  for (const s of samples) {
+    const at = isoDateTime(addDays(today, -s.daysAgo));
+    const lines = s.items.map(([idx, qty]) => {
+      const mi = db.menu[idx];
+      return { id: id('line'), menuItemId: mi.id, name: mi.name, qty, unitPrice: mi.price, removedIngredients: [], addedModifiers: [], notes: null, station: mi.station, sent: true };
+    });
+    const subtotal = round2(lines.reduce((sum, l) => sum + l.qty * l.unitPrice, 0));
+    const tax = round2(subtotal * db.config.taxRate);
+    const total = round2(subtotal + tax + s.tip);
+    db.accounts.push({
+      id: id('acc'),
+      serviceType: s.serviceType,
+      tableId: s.serviceType === 'mesa' ? 'tbl_1' : null,
+      guests: s.serviceType === 'mesa' ? 2 : null,
+      waiterId: s.waiterId,
+      customerName: null,
+      phone: null,
+      address: null,
+      tags: [],
+      notes: null,
+      lines,
+      status: 'pagada',
+      openedAt: at,
+      paidAt: at,
+      payment: { method: s.method, amountReceived: s.method === 'efectivo' ? total : null, tip: s.tip, total, change: 0 },
+      subtotal,
+      tax,
+      total,
+    });
+  }
+}
+
+// --- date helpers (UTC) ---
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+function startOfWeek(date) {
+  const d = new Date(date);
+  const day = (d.getUTCDay() + 6) % 7; // lunes=0
+  return addDays(d, -day);
+}
+const isoDate = (date) => new Date(date).toISOString().slice(0, 10);
+const isoDateTime = (date) => new Date(date).toISOString();
 
 function item(name, description, price, category, subcategory, station, ingredients, modifiers) {
   return {
@@ -158,7 +278,7 @@ export const snapshot = () => ({ tables: db.tables, tickets: db.tickets, config:
 // ---------------------------------------------------------------------------
 // Tables
 // ---------------------------------------------------------------------------
-function emit(type, data) {
+export function emit(type, data) {
   events.emit('broadcast', { type, data, at: now() });
 }
 
@@ -217,7 +337,6 @@ function recalcTotals(account) {
   account.tax = tax;
   account.total = round2(account.subtotal + tax);
 }
-const round2 = (n) => Math.round(n * 100) / 100;
 
 export function createAccount({ serviceType, tableId, guests, waiterId, customerName, phone, address, tags, notes }) {
   if (!['mesa', 'llevar', 'domicilio'].includes(serviceType)) throw invalid('serviceType inválido');

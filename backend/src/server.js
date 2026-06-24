@@ -12,6 +12,13 @@ import accountRoutes from './routes/accounts.js';
 import ticketRoutes from './routes/tickets.js';
 import waitlistRoutes from './routes/waitlist.js';
 import configRoutes from './routes/config.js';
+import menuCollectionRoutes from './routes/menu-collections.js';
+import employeeRoutes from './routes/employees.js';
+import shiftRoutes from './routes/shifts.js';
+import inventoryRoutes from './routes/inventory.js';
+import purchasingRoutes from './routes/purchasing.js';
+import reportRoutes from './routes/reports.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 export function createApp() {
   const app = express();
@@ -25,6 +32,13 @@ export function createApp() {
   app.use('/api/accounts', accountRoutes);
   app.use('/api/tickets', ticketRoutes);
   app.use('/api/waitlist', waitlistRoutes);
+  app.use('/api/menu-collections', menuCollectionRoutes);
+  app.use('/api/employees', employeeRoutes);
+  app.use('/api/shifts', shiftRoutes);
+  app.use('/api/inventory', inventoryRoutes);
+  app.use('/api/purchasing', purchasingRoutes);
+  app.use('/api/reports', reportRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
   app.use('/api', configRoutes);
 
   // 404
