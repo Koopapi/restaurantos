@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Permite tráfico HTTP en claro SOLO en desarrollo, para que el app alcance el
+  backend en `http://10.0.2.2:4000` (emulador) o `http://<IP-LAN>:4000` (físico).
+  En producción el backend va detrás de HTTPS y esto no es necesario.
+
+  Referéncialo en AndroidManifest.xml (etiqueta <application>):
+    android:networkSecurityConfig="@xml/network_security_config"
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
