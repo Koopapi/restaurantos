@@ -1,0 +1,21 @@
+{
+  "name": "restaurantos-backend",
+  "version": "0.1.0",
+  "description": "RestaurantOS backend — REST + WebSocket realtime, in-memory store (pilot)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "echo \"(lint pendiente de configurar)\" && exit 0",
+    "test": "echo \"(sin tests aún)\" && exit 0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
