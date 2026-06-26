@@ -21,7 +21,8 @@ class AuthRepository {
   AuthRepository(this._dio);
 
   /// POST /api/auth/login { employeeId, pin } → { token, employee }
-  Future<LoginResult> login({required String employeeId, required String pin}) async {
+  Future<LoginResult> login(
+      {required String employeeId, required String pin}) async {
     final res = await _dio.post<Map<String, dynamic>>(
       '/auth/login',
       data: {'employeeId': employeeId, 'pin': pin},

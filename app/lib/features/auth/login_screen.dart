@@ -70,8 +70,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 Text('RestaurantOS', style: theme.textTheme.headlineSmall),
                 Text('Inicia sesión con tu PIN',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant)),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 24),
                 TextField(
                   controller: _employeeId,
@@ -103,8 +103,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 16),
                 Text(
                   'Demo: emp_carlos / 2222 (mesero) · emp_sofia / 6666 (admin)',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -188,7 +188,8 @@ class _Keypad extends StatelessWidget {
             onPressed: () => onDigit(d),
             style: OutlinedButton.styleFrom(
               shape: const CircleBorder(),
-              textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+              textStyle:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
             ),
             child: Text(d),
           ),

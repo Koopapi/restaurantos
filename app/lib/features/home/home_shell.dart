@@ -104,7 +104,9 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
                   employee.initials ??
                       (employee.name.isNotEmpty ? employee.name[0] : '?'),
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12),
                 ),
               ),
               const SizedBox(width: 8),
