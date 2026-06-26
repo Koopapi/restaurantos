@@ -224,8 +224,9 @@ class _ActionButton extends ConsumerWidget {
       try {
         await action();
       } catch (e) {
-        if (context.mounted)
+        if (context.mounted) {
           showError(context, 'No se pudo actualizar la comanda');
+        }
       }
     }
 

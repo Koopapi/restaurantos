@@ -37,8 +37,9 @@ class TablesNotifier extends AsyncNotifier<List<RestaurantTable>> {
   @override
   Future<List<RestaurantTable>> build() async {
     ref.listen(realtimeEventsProvider, (_, next) {
-      if (next.valueOrNull?.type.startsWith('table') ?? false)
+      if (next.valueOrNull?.type.startsWith('table') ?? false) {
         ref.invalidateSelf();
+      }
     });
     return ref.watch(serviceRepositoryProvider).tables();
   }
@@ -53,8 +54,9 @@ class OpenAccountsNotifier extends AsyncNotifier<List<Account>> {
   @override
   Future<List<Account>> build() async {
     ref.listen(realtimeEventsProvider, (_, next) {
-      if (next.valueOrNull?.type.startsWith('account') ?? false)
+      if (next.valueOrNull?.type.startsWith('account') ?? false) {
         ref.invalidateSelf();
+      }
     });
     return ref.watch(serviceRepositoryProvider).accounts(status: 'abierta');
   }

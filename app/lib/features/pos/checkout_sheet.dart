@@ -139,8 +139,9 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
   }
 
   bool get _canPay {
-    if (_method == 'efectivo')
+    if (_method == 'efectivo') {
       return _received_ != null && _received_! >= _grandTotal;
+    }
     return true;
   }
 
