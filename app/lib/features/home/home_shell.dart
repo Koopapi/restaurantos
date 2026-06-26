@@ -3,6 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/providers.dart';
 import '../accounts/accounts_screen.dart';
+import '../admin/brand_screen.dart';
+import '../admin/dashboard_screen.dart';
+import '../admin/employees_screen.dart';
+import '../admin/inventory_screen.dart';
+import '../admin/menu_admin_screen.dart';
+import '../admin/purchasing_screen.dart';
+import '../admin/reports_screen.dart';
 import '../auth/auth_controller.dart';
 import '../auth/employee.dart';
 import '../kds/kds_screen.dart';
@@ -90,6 +97,20 @@ class HomeShell extends ConsumerWidget {
       case 'Barra':
       case 'Barra KDS':
         return const KdsScreen(station: 'barra');
+      case 'Dashboard':
+        return const DashboardScreen();
+      case 'Menú':
+        return const MenuAdminScreen();
+      case 'Inventario':
+        return const InventoryScreen();
+      case 'Compras':
+        return const PurchasingScreen();
+      case 'Empleados':
+        return const EmployeesScreen();
+      case 'Reportes':
+        return const ReportsScreen();
+      case 'Marca blanca':
+        return const BrandScreen();
       default:
         return _Placeholder(label: label);
     }

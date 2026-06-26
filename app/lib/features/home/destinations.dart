@@ -32,10 +32,12 @@ List<AppDestination> destinationsForRole(String role) {
       ];
     case 'gerente':
       return const [
+        AppDestination('Dashboard', Icons.dashboard),
         AppDestination('Mesas', Icons.table_restaurant),
         AppDestination('Menú', Icons.menu_book),
         AppDestination('Inventario', Icons.inventory_2),
         AppDestination('Compras', Icons.shopping_cart),
+        AppDestination('Empleados', Icons.badge),
         AppDestination('Reportes', Icons.bar_chart),
       ];
     case 'admin':
@@ -43,7 +45,10 @@ List<AppDestination> destinationsForRole(String role) {
         AppDestination('Dashboard', Icons.dashboard),
         AppDestination('Mesas', Icons.table_restaurant),
         AppDestination('Menú', Icons.menu_book),
+        AppDestination('Inventario', Icons.inventory_2),
+        AppDestination('Compras', Icons.shopping_cart),
         AppDestination('Empleados', Icons.badge),
+        AppDestination('Reportes', Icons.bar_chart),
         AppDestination('Marca blanca', Icons.palette),
       ];
     default:

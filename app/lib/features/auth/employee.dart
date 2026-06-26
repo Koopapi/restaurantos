@@ -9,6 +9,7 @@ class Employee {
   final String? initials;
   final String? color;
   final String? shift;
+  final bool active;
 
   const Employee({
     required this.id,
@@ -17,6 +18,7 @@ class Employee {
     this.initials,
     this.color,
     this.shift,
+    this.active = true,
   });
 
   factory Employee.fromJson(Map<String, dynamic> json) => Employee(
@@ -26,6 +28,7 @@ class Employee {
         initials: json['initials'] as String?,
         color: json['color'] as String?,
         shift: json['shift'] as String?,
+        active: (json['active'] as bool?) ?? true,
       );
 
   /// Color de avatar parseado desde "#RRGGBB" (fallback al primary del tema).
