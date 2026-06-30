@@ -6,6 +6,7 @@ import '../features/auth/employee.dart';
 import '../models/admin.dart';
 import '../models/app_config.dart';
 import '../models/menu_item.dart';
+import '../models/shift.dart';
 
 /// Acceso REST a la capa de administración (`docs/api-admin.md`).
 class AdminRepository {
@@ -162,6 +163,34 @@ class AdminRepository {
     final r = await _dio.put<Map<String, dynamic>>('/config', data: fields);
     return AppConfig.fromJson(r.data!);
   }
+
+  // --- Turnos ---
+  Future<List<Shift>> shifts({String? week}) async {
+    final r = await _dio.get<List<dynamic>>('/shifts',
+        queryParameters: {if (week != null) 'week': week});
+    return r.data!
+        .map((e) => Shift.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Shift> createShift({
+    required String employeeId,
+    required String date,
+    required String type,
+    String? start,
+    String? end,
+  }) async {
+    final r = await _dio.post<Map<String, dynamic>>('/shifts', data: {
+      'employeeId': employeeId,
+      'date': date,
+      'type': type,
+      if (start != null && start.isNotEmpty) 'start': start,
+      if (end != null && end.isNotEmpty) 'end': end,
+    });
+    return Shift.fromJson(r.data!);
+  }
+
+  Future<void> deleteShift(String id) async => _dio.delete('/shifts/$id');
 }
 
 final adminRepositoryProvider =

@@ -14,6 +14,8 @@ import 'features/tables/tables_screen.dart';
 import 'features/admin/brand_screen.dart';
 import 'features/admin/dashboard_screen.dart';
 import 'features/admin/inventory_screen.dart';
+import 'features/admin/shifts_screen.dart';
+import 'models/shift.dart';
 import 'models/admin.dart';
 import 'state/admin_providers.dart';
 import 'models/account.dart';
@@ -287,6 +289,34 @@ class _FakeInventory extends InventoryNotifier {
   Future<List<InventoryItem>> build() async => _inventory;
 }
 
+const _employees = <Employee>[
+  Employee(id: 'e1', name: 'María García', role: 'mesero', shift: '08:00 - 16:00'),
+  Employee(id: 'e2', name: 'Carlos Ramírez', role: 'mesero', shift: '16:00 - 00:00'),
+  Employee(id: 'e3', name: 'Ana Martínez', role: 'cocina', shift: '10:00 - 18:00'),
+  Employee(id: 'e4', name: 'Luis Pérez', role: 'barista', shift: '14:00 - 22:00'),
+  Employee(id: 'e5', name: 'Sofía Admin', role: 'admin', shift: '09:00 - 18:00'),
+  Employee(id: 'e6', name: 'Valeria Ruiz', role: 'hostess', shift: '12:00 - 20:00', active: false),
+];
+
+class _FakeEmployees extends EmployeesNotifier {
+  @override
+  Future<List<Employee>> build() async => _employees;
+}
+
+List<Shift> _shifts() {
+  final now = DateTime.now();
+  String iso(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  final today = iso(now);
+  final tomorrow = iso(now.add(const Duration(days: 1)));
+  return [
+    Shift(id: 's1', employeeId: 'e1', date: today, type: 'matutino', start: '09:00', end: '17:00'),
+    Shift(id: 's2', employeeId: 'e3', date: today, type: 'completo', start: '10:00', end: '22:00'),
+    Shift(id: 's3', employeeId: 'e4', date: today, type: 'vespertino', start: '14:00', end: '22:00'),
+    Shift(id: 's4', employeeId: 'e2', date: tomorrow, type: 'vespertino', start: '16:00', end: '00:00'),
+  ];
+}
+
 class _FakeTickets extends TicketsNotifier {
   @override
   Future<List<Ticket>> build(String station) async => _tickets();
@@ -315,6 +345,8 @@ void main() {
         waitlistProvider.overrideWith(_FakeWaitlist.new),
         dashboardProvider.overrideWith((ref) async => _dash),
         inventoryProvider.overrideWith(_FakeInventory.new),
+        employeesProvider.overrideWith(_FakeEmployees.new),
+        shiftsProvider.overrideWith((ref) async => _shifts()),
       ],
       child: const _PreviewApp(),
     ),
@@ -352,6 +384,7 @@ class _PreviewAppState extends State<_PreviewApp> {
                   ButtonSegment(value: 5, label: Text('Dashboard')),
                   ButtonSegment(value: 6, label: Text('Inventario')),
                   ButtonSegment(value: 7, label: Text('Marca')),
+                  ButtonSegment(value: 8, label: Text('Turnos')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -367,7 +400,8 @@ class _PreviewAppState extends State<_PreviewApp> {
           4 => const HostessScreen(),
           5 => const DashboardScreen(),
           6 => const InventoryScreen(),
-          _ => const BrandScreen(),
+          7 => const BrandScreen(),
+          _ => const ShiftsScreen(),
         },
       ),
     );

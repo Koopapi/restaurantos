@@ -10,6 +10,7 @@ import '../admin/inventory_screen.dart';
 import '../admin/menu_admin_screen.dart';
 import '../admin/purchasing_screen.dart';
 import '../admin/reports_screen.dart';
+import '../admin/shifts_screen.dart';
 import '../auth/auth_controller.dart';
 import '../auth/employee.dart';
 import '../hostess/hostess_screen.dart';
@@ -110,6 +111,8 @@ class HomeShell extends ConsumerWidget {
         return const PurchasingScreen();
       case 'Empleados':
         return const EmployeesScreen();
+      case 'Turnos':
+        return const ShiftsScreen();
       case 'Reportes':
         return const ReportsScreen();
       case 'Marca blanca':
