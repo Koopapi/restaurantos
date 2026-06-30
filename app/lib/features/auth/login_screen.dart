@@ -26,9 +26,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   static const _maxPin = 4;
 
   static const _quick = [
+    ('Valeria · Hostess', 'emp_valeria'),
     ('Carlos · Mesero', 'emp_carlos'),
     ('Sofía · Admin', 'emp_sofia'),
     ('Ana · Cocina', 'emp_ana'),
+    ('Luis · Barra', 'emp_luis'),
   ];
 
   @override
@@ -184,7 +186,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             const SizedBox(height: Sp.md),
             const Text(
-              'Demo · PIN: Carlos 2222 · Sofía 6666 · Ana 3333',
+              'Demo · PIN: Hostess 7777 · Mesero 2222 · Admin 6666 · Cocina 3333 · Barra 4444',
               textAlign: TextAlign.center,
               style: TextStyle(color: BrandColors.inkFaint, fontSize: 12),
             ),
