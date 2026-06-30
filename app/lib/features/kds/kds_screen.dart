@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repositories.dart';
 import '../../models/app_config.dart';
 import '../../models/ticket.dart';
 import '../../state/providers.dart';
-import '../../theme/colors.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/ui_kit.dart';
 import '../auth/auth_controller.dart';
 
 /// Tablero KDS de una estación (cocina|barra). Columnas Pendiente / En
-/// preparación / Lista (spec §6). Cocina/Barista avanzan; el mesero solo entrega.
+/// preparación / Lista. Cocina/Barista avanzan; el mesero solo entrega.
 class KdsScreen extends ConsumerWidget {
   final String station; // 'cocina' | 'barra'
   const KdsScreen({super.key, required this.station});
@@ -25,25 +27,24 @@ class KdsScreen extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => EmptyState(icon: Icons.cloud_off, message: '$e'),
       data: (tickets) {
-        if (tickets.isEmpty) {
-          return const EmptyState(
-              icon: Icons.check_circle_outline,
-              message: 'Sin comandas pendientes');
-        }
-        final columns = <String, List<Ticket>>{
-          'pendiente': tickets.where((t) => t.status == 'pendiente').toList(),
-          'en_proceso': tickets.where((t) => t.status == 'en_proceso').toList(),
-          'lista': tickets.where((t) => t.status == 'lista').toList(),
+        final order = ['pendiente', 'en_proceso', 'lista'];
+        final columns = {
+          for (final s in order)
+            s: tickets.where((t) => t.status == s).toList(),
         };
 
         if (!wide) {
-          // Teléfono: una sola lista ordenada por estado.
+          if (tickets.isEmpty) {
+            return const EmptyState(
+                icon: Icons.check_circle_outline,
+                message: 'Sin comandas pendientes');
+          }
           return ListView(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(Sp.md),
             children: [
               for (final t in tickets)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: Sp.md),
                   child: _TicketCard(
                       ticket: t, urgencyMinutes: config.urgencyMinutes),
                 ),
@@ -51,16 +52,21 @@ class KdsScreen extends ConsumerWidget {
           );
         }
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final entry in columns.entries)
-              Expanded(
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(Sp.md, Sp.sm, Sp.md, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final s in order)
+                Expanded(
                   child: _Column(
-                      title: entry.key,
-                      tickets: entry.value,
-                      urgency: config.urgencyMinutes)),
-          ],
+                    status: s,
+                    tickets: columns[s]!,
+                    urgency: config.urgencyMinutes,
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -68,40 +74,71 @@ class KdsScreen extends ConsumerWidget {
 }
 
 class _Column extends StatelessWidget {
-  final String title;
+  final String status;
   final List<Ticket> tickets;
   final int urgency;
   const _Column(
-      {required this.title, required this.tickets, required this.urgency});
+      {required this.status, required this.tickets, required this.urgency});
 
   @override
   Widget build(BuildContext context) {
-    final style = ticketStatusStyle(context, title);
+    final viz = _statusViz(status);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          padding: const EdgeInsets.fromLTRB(Sp.sm, Sp.sm, Sp.sm, Sp.md),
           child: Row(
             children: [
-              CircleAvatar(radius: 5, backgroundColor: style.fg),
-              const SizedBox(width: 8),
-              Text('${style.label} · ${tickets.length}',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              Container(
+                width: 10,
+                height: 10,
+                decoration:
+                    BoxDecoration(color: viz.color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: Sp.sm),
+              Text(viz.label,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w800, fontSize: 15)),
+              const SizedBox(width: Sp.sm),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: Sp.sm, vertical: 2),
+                decoration: BoxDecoration(
+                  color: viz.soft,
+                  borderRadius: BorderRadius.circular(Rad.pill),
+                ),
+                child: Text('${tickets.length}',
+                    style: TextStyle(
+                        color: viz.color,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13)),
+              ),
             ],
           ),
         ),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(12),
-            children: [
-              for (final t in tickets)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _TicketCard(ticket: t, urgencyMinutes: urgency),
+          child: tickets.isEmpty
+              ? Center(
+                  child: Text('—',
+                      style: TextStyle(
+                          color: BrandColors.inkFaint.withValues(alpha: 0.5),
+                          fontSize: 28)),
+                )
+              : ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: Sp.sm),
+                  children: [
+                    for (var i = 0; i < tickets.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: Sp.md),
+                        child: _TicketCard(
+                                ticket: tickets[i], urgencyMinutes: urgency)
+                            .animate()
+                            .fadeIn(duration: 240.ms, delay: (i * 40).ms)
+                            .slideY(begin: 0.06, end: 0, curve: Curves.easeOut),
+                      ),
+                  ],
                 ),
-            ],
-          ),
         ),
       ],
     );
@@ -115,61 +152,119 @@ class _TicketCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final style = ticketStatusStyle(context, ticket.status);
+    final viz = _statusViz(ticket.status);
     final elapsed = ticket.minutesElapsed(DateTime.now());
     final urgent = elapsed >= urgencyMinutes && ticket.status != 'lista';
 
-    return Card(
+    return Container(
       clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: style.fg, width: 6)),
-        ),
-        padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(Rad.lg),
+        boxShadow: Shadows.card,
+        border: Border(left: BorderSide(color: viz.color, width: 6)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(Sp.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.restaurant, size: 20),
-                const SizedBox(width: 8),
+                Icon(
+                  ticket.station == 'barra'
+                      ? Icons.local_bar
+                      : Icons.outdoor_grill,
+                  size: 20,
+                  color: BrandColors.inkSoft,
+                ),
+                const SizedBox(width: Sp.sm),
                 Text(ticket.label,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700)),
+                        fontSize: 18, fontWeight: FontWeight.w800)),
                 const Spacer(),
                 _Timer(minutes: elapsed, urgent: urgent),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: Sp.sm),
             Row(
               children: [
                 if (ticket.waiterName != null)
-                  Text('Mesero: ${ticket.waiterName}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant)),
+                  Text('Mesero · ${ticket.waiterName}',
+                      style: const TextStyle(
+                          color: BrandColors.inkFaint, fontSize: 12.5)),
                 const Spacer(),
-                StatusBadge(label: style.label, bg: style.bg, fg: style.fg),
+                _StatusPill(viz: viz),
               ],
             ),
-            const Divider(height: 20),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: Sp.md),
+              child: Divider(height: 1),
+            ),
             for (final l in ticket.lines)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
+                padding: const EdgeInsets.symmetric(vertical: 3),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${l.qty}× ',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.primary)),
-                    Expanded(child: Text(l.name)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: BrandColors.orangeSoft,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('${l.qty}×',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: BrandColors.orangeInk,
+                              fontSize: 13)),
+                    ),
+                    const SizedBox(width: Sp.sm),
+                    Expanded(
+                      child: Text(l.name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 14.5)),
+                    ),
                   ],
                 ),
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: Sp.md),
             _ActionButton(ticket: ticket),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final _Viz viz;
+  const _StatusPill({required this.viz});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: Sp.md, vertical: 5),
+      decoration: BoxDecoration(
+        color: viz.soft,
+        borderRadius: BorderRadius.circular(Rad.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: viz.color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: Sp.xs),
+          Text(viz.label,
+              style: TextStyle(
+                  color: viz.color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12)),
+        ],
       ),
     );
   }
@@ -182,27 +277,29 @@ class _Timer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.semantic;
-    final bg = urgent
-        ? Theme.of(context).colorScheme.errorContainer
-        : s.warningContainer;
-    final fg = urgent
-        ? Theme.of(context).colorScheme.onErrorContainer
-        : s.onWarningContainer;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    final color = urgent ? const Color(0xFFD92D20) : BrandColors.inkSoft;
+    final bg = urgent ? const Color(0x1AD92D20) : BrandColors.surfaceAlt;
+    Widget pill = Container(
+      padding: const EdgeInsets.symmetric(horizontal: Sp.sm, vertical: 4),
       decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Rad.pill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.timer_outlined, size: 14, color: fg),
-          const SizedBox(width: 4),
+          Icon(urgent ? Icons.local_fire_department : Icons.timer_outlined,
+              size: 14, color: color),
+          const SizedBox(width: Sp.xs),
           Text('${minutes}m',
-              style: TextStyle(color: fg, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         ],
       ),
     );
+    if (urgent) {
+      pill = pill
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(end: 1.07, duration: 700.ms, curve: Curves.easeInOut);
+    }
+    return pill;
   }
 }
 
@@ -233,33 +330,62 @@ class _ActionButton extends ConsumerWidget {
     final repo = ref.read(serviceRepositoryProvider);
 
     if (ticket.status == 'pendiente' && isStation) {
-      return _btn(context, 'Iniciar preparación', Icons.play_arrow,
-          onTap: () => run(() => repo.advanceTicket(ticket.id)));
+      return GradientButton(
+        label: 'Iniciar preparación',
+        icon: Icons.play_arrow_rounded,
+        height: 48,
+        onTap: () => run(() => repo.advanceTicket(ticket.id)),
+      );
     }
     if (ticket.status == 'en_proceso' && isStation) {
-      return _btn(context, 'Marcar listo', Icons.check,
-          onTap: () => run(() => repo.advanceTicket(ticket.id)));
+      return GradientButton(
+        label: 'Marcar listo',
+        icon: Icons.check_rounded,
+        height: 48,
+        onTap: () => run(() => repo.advanceTicket(ticket.id)),
+      );
     }
     if (ticket.status == 'lista' && isWaiter) {
-      return _btn(context, 'Entregar', Icons.room_service,
-          color: context.semantic.success,
-          onTap: () => run(() => repo.deliverTicket(ticket.id)));
+      return GradientButton(
+        label: 'Entregar',
+        icon: Icons.room_service_rounded,
+        height: 48,
+        colors: const [Color(0xFF2EA043), Color(0xFF1A7F37)],
+        glowColor: const Color(0xFF2EA043),
+        onTap: () => run(() => repo.deliverTicket(ticket.id)),
+      );
     }
     return const SizedBox.shrink();
   }
+}
 
-  Widget _btn(BuildContext context, String label, IconData icon,
-      {required VoidCallback onTap, Color? color}) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon),
-        label: Text(label),
-        style: color != null
-            ? FilledButton.styleFrom(backgroundColor: color)
-            : null,
-      ),
-    );
+typedef _Viz = ({Color color, Color soft, String label});
+
+_Viz _statusViz(String s) {
+  switch (s) {
+    case 'pendiente':
+      return (
+        color: const Color(0xFFF59E0B),
+        soft: const Color(0x1AF59E0B),
+        label: 'Pendiente'
+      );
+    case 'en_proceso':
+      return (
+        color: const Color(0xFF3B82F6),
+        soft: const Color(0x1A3B82F6),
+        label: 'En preparación'
+      );
+    case 'lista':
+      return (
+        color: const Color(0xFF22C55E),
+        soft: const Color(0x1A22C55E),
+        label: 'Lista'
+      );
+    default:
+      return (
+        color: BrandColors.inkFaint,
+        soft: BrandColors.surfaceAlt,
+        label: s
+      );
   }
 }
