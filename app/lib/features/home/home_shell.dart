@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/providers.dart';
 import '../accounts/accounts_screen.dart';
+import '../accounts/nueva_cuenta_screen.dart';
 import '../admin/brand_screen.dart';
 import '../admin/dashboard_screen.dart';
 import '../admin/employees_screen.dart';
@@ -92,6 +93,8 @@ class HomeShell extends ConsumerWidget {
         return const TablesScreen();
       case 'Lista de espera':
         return const HostessScreen();
+      case 'Nueva Cuenta':
+        return const NuevaCuentaScreen();
       case 'Cuentas':
       case 'Cobro':
         return const AccountsScreen();

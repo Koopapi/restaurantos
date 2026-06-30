@@ -61,11 +61,18 @@ class ServiceRepository {
     required String serviceType,
     String? tableId,
     int? guests,
+    String? customerName,
+    String? phone,
+    String? address,
   }) async {
     final r = await _dio.post<Map<String, dynamic>>('/accounts', data: {
       'serviceType': serviceType,
       if (tableId != null) 'tableId': tableId,
       if (guests != null) 'guests': guests,
+      if (customerName != null && customerName.isNotEmpty)
+        'customerName': customerName,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+      if (address != null && address.isNotEmpty) 'address': address,
     });
     return Account.fromJson(r.data!);
   }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'features/accounts/accounts_screen.dart';
+import 'features/accounts/nueva_cuenta_screen.dart';
 import 'features/auth/auth_controller.dart';
 import 'features/auth/employee.dart';
 import 'features/hostess/hostess_screen.dart';
@@ -395,6 +396,7 @@ class _PreviewAppState extends State<_PreviewApp> {
                   ButtonSegment(value: 8, label: Text('Turnos')),
                   ButtonSegment(value: 9, label: Text('Menú')),
                   ButtonSegment(value: 10, label: Text('CrearM')),
+                  ButtonSegment(value: 11, label: Text('NvaCta')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -413,7 +415,8 @@ class _PreviewAppState extends State<_PreviewApp> {
           7 => const BrandScreen(),
           8 => const ShiftsScreen(),
           9 => const MenuAdminScreen(initialSelectedId: 'm1'),
-          _ => const CrearMenuScreen(),
+          10 => const CrearMenuScreen(),
+          _ => const NuevaCuentaScreen(),
         },
       ),
     );
