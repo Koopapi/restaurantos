@@ -1,80 +1,78 @@
-# App — RestaurantOS (Flutter + Material 3)
+# App — RestaurantOS (Flutter, Android)
 
-App Android (tablet + teléfono) del POS y operación en vivo. Tema claro de alto
-contraste, acento violeta. Esta fase (**bootstrap**) incluye: tema, navegación
-responsiva y **login por PIN** conectado al backend. Las pantallas de operación
-y administración llegan en fases siguientes.
+App del POS y operación en vivo para tablet y teléfono Android. **Design system propio claro + naranja** (alto contraste para sol directo), touch-first, con **white-label** (color de marca configurable en vivo desde *Marca y Tema*). Cubre todo el ciclo de servicio y la administración.
+
+> La guía completa de instalación (backend con Docker, dependencias y cómo correr en una **tablet Android real**) está en el [README de la raíz](../README.md). Aquí va lo específico de la app.
 
 ## Estructura
 
 ```
 app/
 ├── pubspec.yaml
+├── android/                      # plataforma Android (ya versionada, no requiere `flutter create`)
 └── lib/
-    ├── main.dart                 # MaterialApp.router + tema
+    ├── main.dart                 # MaterialApp.router; el tema deriva del color de marca (white-label)
     ├── router.dart               # GoRouter con redirect por sesión
-    ├── config/api_config.dart    # URL base del backend (configurable)
-    ├── core/api_client.dart      # Dio + token JWT + manejo de errores
-    ├── theme/                    # colors.dart · theme.dart (Material 3)
-    └── features/
-        ├── auth/                 # login PIN, repositorio y estado de sesión
-        └── home/                 # shell responsivo (NavigationRail / NavigationBar)
+    ├── preview.dart              # harness de desarrollo (previsualiza pantallas sin backend)
+    ├── config/api_config.dart    # URL base del backend (configurable por --dart-define)
+    ├── core/                     # api_client (Dio + JWT) · realtime (WebSocket)
+    ├── data/                     # repositorios REST (ciclo de servicio + administración)
+    ├── state/                    # providers Riverpod
+    ├── models/                   # modelos de dominio
+    ├── theme/                    # tokens · tema · colores
+    ├── widgets/                  # design system (AppCard, GradientButton, …) y comunes
+    └── features/                 # auth · home · pos · tables · kds · accounts · hostess · admin
 ```
 
-## Requisitos previos (instalar en tu Mac)
+## Requisitos
 
-- **Flutter SDK** 3.22+  → https://docs.flutter.dev/get-started/install/macos
-- **Android Studio** (incluye Android SDK + emulador) o un teléfono Android con
-  *depuración USB* activada.
-- Verifica con: `flutter doctor`
-
-## Puesta en marcha (la primera vez)
-
-Este repo trae el código Dart (`lib/`) pero **no** las carpetas de plataforma
-(`android/`, `ios/`), que se generan con Flutter:
-
-```bash
-cd app
-# genera android/ con el package com.gazillioncode.restaurantos (no toca lib/ ni pubspec)
-flutter create --org com.gazillioncode --project-name restaurantos --platforms=android .
-flutter pub get
-```
-
-> Tras `flutter create`, añade en `android/app/src/main/AndroidManifest.xml`,
-> dentro de la etiqueta `<application ...>`, el atributo:
-> `android:networkSecurityConfig="@xml/network_security_config"`
-> (el archivo ya existe en `android/app/src/main/res/xml/`). Esto permite HTTP en
-> claro en desarrollo. Sin esto, Android 9+ bloquea las peticiones al backend.
+- **Flutter 3.22+ (Dart 3)** y **Android SDK** (Android Studio). Verifica con `flutter doctor`.
+- Una **tablet/teléfono Android** con *Depuración USB* (recomendado) o un **emulador**.
 
 ## Correr
 
-1. Levanta el backend (en la raíz del repo): `bash scripts/bootstrap.sh`.
-2. Corre el app:
+Primero deja el **backend** corriendo (ver [README raíz](../README.md) → *Levantar el backend*). Luego:
 
 ```bash
-# Emulador de Android (usa 10.0.2.2 para ver el localhost del host) — default:
-flutter run
-
-# Dispositivo físico: apunta a la IP LAN de tu Mac que corre el backend
-flutter run --dart-define=API_BASE_URL=http://192.168.1.50:4000
+flutter pub get
 ```
 
-El **dispositivo y la Mac deben estar en la misma red WiFi**. Obtén tu IP con
-`ipconfig getifaddr en0`.
+**Tablet/teléfono real** (la app apunta a la IP LAN de la máquina que corre el backend):
 
-## Credenciales demo
+```bash
+flutter run --dart-define=API_BASE_URL=http://<IP-LAN-del-backend>:4000
+# IP en macOS: ipconfig getifaddr en0   ·   Linux: hostname -I   ·   Windows: ipconfig
+```
 
-| Empleado | PIN | Rol |
-|---|---|---|
-| `emp_carlos` | `2222` | mesero |
-| `emp_sofia` | `6666` | admin |
-| `emp_roberto` | `5555` | gerente |
-| `emp_valeria` | `7777` | hostess |
-| `emp_ana` | `3333` | cocina |
-| `emp_luis` | `4444` | barista |
+**Emulador** (usa `10.0.2.2` = host por defecto):
+
+```bash
+flutter run
+```
+
+> La URL base es configurable en compilación con `--dart-define=API_BASE_URL=...`; por defecto `http://10.0.2.2:4000` (emulador). La app permite HTTP en claro en desarrollo (network security config ya incluido en `android/`).
+
+## Previsualizar el diseño sin backend (dev)
+
+`lib/preview.dart` renderiza pantallas con datos de muestra de El Pirrus, sin login ni servidor:
+
+```bash
+flutter run -t lib/preview.dart                          # selector de pantallas arriba
+flutter run -t lib/preview.dart --dart-define=SCREEN=9   # abre directo una pantalla (0..11)
+```
+
+## Login demo
+
+Accesos rápidos por rol en el login (toca el chip y teclea el PIN):
+
+| Rol | PIN | | Rol | PIN |
+|---|---|---|---|---|
+| Hostess | `7777` | | Cocina | `3333` |
+| Mesero | `2222` | | Barra | `4444` |
+| Admin | `6666` | | Gerente | `5555` |
 
 ## Tests
 
 ```bash
-flutter test        # smoke test del arranque (pantalla de login)
+flutter test        # smoke test del arranque (login)
 ```
