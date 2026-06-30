@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
+/// Degradado de marca (claro→oscuro) derivado de un color base.
+List<Color> brandGradient(Color c) {
+  final h = HSLColor.fromColor(c);
+  return [
+    h.withLightness((h.lightness + 0.07).clamp(0.0, 1.0)).toColor(),
+    h.withLightness((h.lightness - 0.08).clamp(0.0, 1.0)).toColor(),
+  ];
+}
+
 /// Tarjeta blanca con sombra suave (look premium, no el Card de Material).
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -96,17 +105,18 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [BrandColors.orangeBright, BrandColors.orangeDeep],
+        gradient: LinearGradient(
+          colors: brandGradient(primary),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(size * 0.30),
-        boxShadow: glow ? Shadows.glow(BrandColors.orange, opacity: 0.45) : null,
+        boxShadow: glow ? Shadows.glow(primary, opacity: 0.45) : null,
       ),
       child: Icon(Icons.restaurant_menu, color: Colors.white, size: size * 0.5),
     );
@@ -134,7 +144,8 @@ class GradientButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onTap != null;
-    final grad = colors ?? const [BrandColors.orangeBright, BrandColors.orangeDeep];
+    final primary = Theme.of(context).colorScheme.primary;
+    final grad = colors ?? brandGradient(primary);
     return PressableScale(
       onTap: onTap,
       child: Container(
@@ -149,7 +160,7 @@ class GradientButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(Rad.pill),
           boxShadow: enabled
-              ? Shadows.glow(glowColor ?? BrandColors.orange, opacity: 0.4)
+              ? Shadows.glow(glowColor ?? primary, opacity: 0.4)
               : null,
         ),
         child: Center(

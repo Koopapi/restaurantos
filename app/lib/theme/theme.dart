@@ -5,15 +5,17 @@ import 'colors.dart';
 import 'tokens.dart';
 
 /// Tema de RestaurantOS — base CLARA de alto contraste (sol directo en piso),
-/// acento naranja de marca, tipografía Plus Jakarta Sans, botones grandes
-/// (56dp) tipo stadium y superficies con sombra suave (look premium, no el
-/// aspecto Material por defecto).
-ThemeData buildAppTheme() {
+/// acento de marca configurable (white-label), tipografía Plus Jakarta Sans,
+/// botones grandes (56dp) tipo stadium y superficies con sombra suave.
+///
+/// [primary] es el color de marca; viene de la config (`Marca y Tema`) para
+/// re-tematizar la app en runtime. Por defecto, el naranja El Pirrus.
+ThemeData buildAppTheme([Color primary = BrandColors.orange]) {
   final scheme = ColorScheme.fromSeed(
-    seedColor: kSeedColor,
+    seedColor: primary,
     brightness: Brightness.light,
   ).copyWith(
-    primary: BrandColors.orange,
+    primary: primary,
     onPrimary: Colors.white,
     primaryContainer: const Color(0xFFFFE7C2),
     onPrimaryContainer: const Color(0xFF552D00),
@@ -48,12 +50,10 @@ ThemeData buildAppTheme() {
       thickness: 1,
       space: 1,
     ),
-
-    // Acción principal: grande y táctil.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size(0, 56),
-        backgroundColor: BrandColors.orange,
+        backgroundColor: primary,
         foregroundColor: Colors.white,
         shape: const StadiumBorder(),
         elevation: 0,
@@ -76,11 +76,11 @@ ThemeData buildAppTheme() {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: BrandColors.orangeInk),
+      style: TextButton.styleFrom(foregroundColor: primary),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: BrandColors.surfaceAlt,
-      selectedColor: BrandColors.orangeSoft,
+      selectedColor: primary.withValues(alpha: 0.14),
       side: BorderSide.none,
       labelStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
@@ -108,7 +108,7 @@ ThemeData buildAppTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Rad.md),
-        borderSide: const BorderSide(color: BrandColors.orange, width: 2),
+        borderSide: BorderSide(color: primary, width: 2),
       ),
     ),
     appBarTheme: const AppBarTheme(

@@ -90,7 +90,7 @@ export function seed(overrides = {}) {
   db.config = {
     brandName: 'El Pirrus',
     logoUrl: null,
-    primaryColor: '#E8743B',
+    primaryColor: '#FF9800',
     taxLabel: process.env.TAX_LABEL || 'IVA',
     taxRate: Number(process.env.TAX_RATE ?? 0.085),
     urgencyMinutes: Number(process.env.URGENCY_MINUTES ?? 15),

@@ -11,6 +11,7 @@ import 'features/hostess/hostess_screen.dart';
 import 'features/kds/kds_screen.dart';
 import 'features/pos/pos_screen.dart';
 import 'features/tables/tables_screen.dart';
+import 'features/admin/brand_screen.dart';
 import 'features/admin/dashboard_screen.dart';
 import 'features/admin/inventory_screen.dart';
 import 'models/admin.dart';
@@ -245,7 +246,7 @@ const _dash = DashboardData(
   tickets: 86,
   avgTicket: 145.10,
   tips: 1240,
-  trend: const [
+  trend: [
     (label: '2026-06-23', value: 8200),
     (label: '2026-06-24', value: 9100),
     (label: '2026-06-25', value: 11800),
@@ -254,12 +255,12 @@ const _dash = DashboardData(
     (label: '2026-06-28', value: 7300),
     (label: '2026-06-29', value: 9400),
   ],
-  byServiceType: const [
+  byServiceType: [
     (type: 'mesa', amount: 8120),
     (type: 'llevar', amount: 2960),
     (type: 'domicilio', amount: 1400),
   ],
-  topDishes: const [
+  topDishes: [
     (name: 'Aguachile Negro', qty: 42),
     (name: 'Ceviche Mixto', qty: 31),
     (name: 'Pulpo Zarandeado', qty: 24),
@@ -350,6 +351,7 @@ class _PreviewAppState extends State<_PreviewApp> {
                   ButtonSegment(value: 4, label: Text('Hostess')),
                   ButtonSegment(value: 5, label: Text('Dashboard')),
                   ButtonSegment(value: 6, label: Text('Inventario')),
+                  ButtonSegment(value: 7, label: Text('Marca')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -364,7 +366,8 @@ class _PreviewAppState extends State<_PreviewApp> {
           3 => const AccountsScreen(),
           4 => const HostessScreen(),
           5 => const DashboardScreen(),
-          _ => const InventoryScreen(),
+          6 => const InventoryScreen(),
+          _ => const BrandScreen(),
         },
       ),
     );
