@@ -11,6 +11,10 @@ import 'features/hostess/hostess_screen.dart';
 import 'features/kds/kds_screen.dart';
 import 'features/pos/pos_screen.dart';
 import 'features/tables/tables_screen.dart';
+import 'features/admin/dashboard_screen.dart';
+import 'features/admin/inventory_screen.dart';
+import 'models/admin.dart';
+import 'state/admin_providers.dart';
 import 'models/account.dart';
 import 'models/app_config.dart';
 import 'models/menu_item.dart';
@@ -236,6 +240,52 @@ class _FakeWaitlist extends WaitlistNotifier {
   Future<List<WaitlistEntry>> build() async => _waitlist;
 }
 
+const _dash = DashboardData(
+  sales: 12480,
+  tickets: 86,
+  avgTicket: 145.10,
+  tips: 1240,
+  trend: const [
+    (label: '2026-06-23', value: 8200),
+    (label: '2026-06-24', value: 9100),
+    (label: '2026-06-25', value: 11800),
+    (label: '2026-06-26', value: 13900),
+    (label: '2026-06-27', value: 9700),
+    (label: '2026-06-28', value: 7300),
+    (label: '2026-06-29', value: 9400),
+  ],
+  byServiceType: const [
+    (type: 'mesa', amount: 8120),
+    (type: 'llevar', amount: 2960),
+    (type: 'domicilio', amount: 1400),
+  ],
+  topDishes: const [
+    (name: 'Aguachile Negro', qty: 42),
+    (name: 'Ceviche Mixto', qty: 31),
+    (name: 'Pulpo Zarandeado', qty: 24),
+    (name: 'Tostada de Atún', qty: 18),
+  ],
+  tablesOccupied: 3,
+  tablesTotal: 12,
+  activeAccounts: 4,
+  kitchenTickets: 2,
+  barTickets: 1,
+);
+
+const _inventory = <InventoryItem>[
+  InventoryItem(id: 'i1', name: 'Camarón', category: 'Mariscos', unit: 'kg', stock: 18, minStock: 10, status: 'ok', autoReorder: true, cost: 180, supplier: 'Mariscos del Pacífico'),
+  InventoryItem(id: 'i2', name: 'Pulpo', category: 'Mariscos', unit: 'kg', stock: 6, minStock: 8, status: 'bajo', autoReorder: true, cost: 220, supplier: 'Mariscos del Pacífico'),
+  InventoryItem(id: 'i3', name: 'Limón', category: 'Verduras', unit: 'kg', stock: 40, minStock: 25, status: 'ok', autoReorder: false, cost: 25),
+  InventoryItem(id: 'i4', name: 'Cerveza', category: 'Bebidas', unit: 'cartón', stock: 4, minStock: 6, status: 'bajo', autoReorder: true, cost: 280, supplier: 'Distribuidora Sur'),
+  InventoryItem(id: 'i5', name: 'Aguacate', category: 'Verduras', unit: 'pza', stock: 50, minStock: 30, status: 'ok', autoReorder: false, cost: 12),
+  InventoryItem(id: 'i6', name: 'Tostadas', category: 'Abarrotes', unit: 'paq', stock: 22, minStock: 12, status: 'ok', autoReorder: false, cost: 35),
+];
+
+class _FakeInventory extends InventoryNotifier {
+  @override
+  Future<List<InventoryItem>> build() async => _inventory;
+}
+
 class _FakeTickets extends TicketsNotifier {
   @override
   Future<List<Ticket>> build(String station) async => _tickets();
@@ -262,6 +312,8 @@ void main() {
         tablesProvider.overrideWith(_FakeTables.new),
         openAccountsProvider.overrideWith(_FakeOpenAccounts.new),
         waitlistProvider.overrideWith(_FakeWaitlist.new),
+        dashboardProvider.overrideWith((ref) async => _dash),
+        inventoryProvider.overrideWith(_FakeInventory.new),
       ],
       child: const _PreviewApp(),
     ),
@@ -296,6 +348,8 @@ class _PreviewAppState extends State<_PreviewApp> {
                   ButtonSegment(value: 2, label: Text('Mesas')),
                   ButtonSegment(value: 3, label: Text('Cuentas')),
                   ButtonSegment(value: 4, label: Text('Hostess')),
+                  ButtonSegment(value: 5, label: Text('Dashboard')),
+                  ButtonSegment(value: 6, label: Text('Inventario')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -308,7 +362,9 @@ class _PreviewAppState extends State<_PreviewApp> {
           1 => const KdsScreen(station: 'cocina'),
           2 => const TablesScreen(initialSelectedId: 'tbl1'),
           3 => const AccountsScreen(),
-          _ => const HostessScreen(),
+          4 => const HostessScreen(),
+          5 => const DashboardScreen(),
+          _ => const InventoryScreen(),
         },
       ),
     );

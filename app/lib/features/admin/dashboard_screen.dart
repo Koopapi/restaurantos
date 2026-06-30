@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/admin.dart';
 import '../../models/app_config.dart';
 import '../../state/admin_providers.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/ui_kit.dart';
 
-/// Dashboard operativo (`docs/design/` Dashboard): métricas, tendencia de
-/// ventas, por tipo de servicio y operación en vivo.
+/// Dashboard operativo: métricas, tendencia de ventas, tipo de servicio,
+/// platillos más vendidos y operación en vivo.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -17,24 +20,39 @@ class DashboardScreen extends ConsumerWidget {
     final async = ref.watch(dashboardProvider);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Sp.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'hoy', label: Text('Hoy')),
-                ButtonSegment(value: '7d', label: Text('7 días')),
-                ButtonSegment(value: '30d', label: Text('30 días')),
-              ],
-              selected: {range},
-              onSelectionChanged: (s) =>
-                  ref.read(dashRangeProvider.notifier).state = s.first,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Dashboard',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const Text('Resumen del negocio',
+                        style: TextStyle(color: BrandColors.inkSoft)),
+                  ],
+                ),
+              ),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'hoy', label: Text('Hoy')),
+                  ButtonSegment(value: '7d', label: Text('7 días')),
+                  ButtonSegment(value: '30d', label: Text('30 días')),
+                ],
+                selected: {range},
+                onSelectionChanged: (s) =>
+                    ref.read(dashRangeProvider.notifier).state = s.first,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Sp.lg),
           async.when(
             loading: () => const Padding(
                 padding: EdgeInsets.all(48),
@@ -54,42 +72,50 @@ class _Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 840;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: Sp.md,
+          runSpacing: Sp.md,
           children: [
-            _Metric(
-                icon: Icons.attach_money,
-                value: money(data.sales),
-                label: 'Ventas'),
-            _Metric(
-                icon: Icons.receipt_long,
-                value: '${data.tickets}',
-                label: 'Tickets'),
-            _Metric(
-                icon: Icons.trending_up,
-                value: money(data.avgTicket),
-                label: 'Ticket promedio'),
-            _Metric(
-                icon: Icons.volunteer_activism,
-                value: money(data.tips),
-                label: 'Propinas'),
+            _Metric(icon: Icons.payments, value: data.sales, isMoney: true, label: 'Ventas'),
+            _Metric(icon: Icons.receipt_long, value: data.tickets, label: 'Tickets'),
+            _Metric(icon: Icons.trending_up, value: data.avgTicket, isMoney: true, label: 'Ticket promedio'),
+            _Metric(icon: Icons.volunteer_activism, value: data.tips, isMoney: true, label: 'Propinas'),
           ],
         ),
-        const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 2, child: _TrendCard(trend: data.trend)),
-            const SizedBox(width: 12),
-            Expanded(child: _ServiceTypeCard(rows: data.byServiceType)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _LiveCard(data: data),
+        const SizedBox(height: Sp.lg),
+        if (wide)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 2, child: _TrendCard(trend: data.trend)),
+              const SizedBox(width: Sp.md),
+              Expanded(child: _ServiceTypeCard(rows: data.byServiceType)),
+            ],
+          )
+        else ...[
+          _TrendCard(trend: data.trend),
+          const SizedBox(height: Sp.md),
+          _ServiceTypeCard(rows: data.byServiceType),
+        ],
+        const SizedBox(height: Sp.md),
+        if (wide)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _TopDishesCard(dishes: data.topDishes)),
+              const SizedBox(width: Sp.md),
+              Expanded(flex: 2, child: _LiveCard(data: data)),
+            ],
+          )
+        else ...[
+          _TopDishesCard(dishes: data.topDishes),
+          const SizedBox(height: Sp.md),
+          _LiveCard(data: data),
+        ],
       ],
     );
   }
@@ -97,34 +123,75 @@ class _Content extends StatelessWidget {
 
 class _Metric extends StatelessWidget {
   final IconData icon;
-  final String value;
+  final num value;
+  final bool isMoney;
   final String label;
-  const _Metric({required this.icon, required this.value, required this.label});
+  const _Metric(
+      {required this.icon,
+      required this.value,
+      required this.label,
+      this.isMoney = false});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: 220,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+    return SizedBox(
+      width: 230,
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: BrandColors.orangeSoft,
+                borderRadius: BorderRadius.circular(Rad.md),
+              ),
+              child: Icon(icon, color: BrandColors.orangeInk, size: 22),
+            ),
+            const SizedBox(height: Sp.md),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value.toDouble()),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, __) => Text(
+                isMoney ? money(v) : v.round().toString(),
+                style: const TextStyle(
+                    fontSize: 28, fontWeight: FontWeight.w800),
+              ),
+            ),
+            Text(label, style: const TextStyle(color: BrandColors.inkSoft)),
+          ],
+        ),
       ),
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0);
+  }
+}
+
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final Widget? trailing;
+  final Widget child;
+  const _SectionCard({required this.title, this.trailing, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(Sp.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: theme.colorScheme.secondaryContainer,
-            child: Icon(icon,
-                color: theme.colorScheme.onSecondaryContainer, size: 20),
+          Row(
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w800)),
+              const Spacer(),
+              if (trailing != null) trailing!,
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(value, style: theme.textTheme.headlineMedium),
-          Text(label,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          const SizedBox(height: Sp.lg),
+          child,
         ],
       ),
     );
@@ -137,68 +204,81 @@ class _TrendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final maxV = trend.fold<num>(1, (m, e) => e.value > m ? e.value : m);
-    final maxIdx = trend.isEmpty
-        ? -1
-        : trend.indexWhere((e) =>
-            e.value == trend.fold<num>(0, (m, x) => x.value > m ? x.value : m));
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Tendencia de ventas', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 180,
-              child: trend.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.bar_chart, message: 'Sin datos en el rango')
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        for (var i = 0; i < trend.length; i++)
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    height: (140 * (trend[i].value / maxV))
-                                        .clamp(4, 140)
-                                        .toDouble(),
-                                    decoration: BoxDecoration(
-                                      color: i == maxIdx
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.primaryContainer,
-                                      borderRadius: const BorderRadius.vertical(
-                                          top: Radius.circular(6)),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(_short(trend[i].label),
-                                      style: theme.textTheme.labelSmall,
-                                      maxLines: 1),
-                                ],
+    var maxIdx = -1;
+    for (var i = 0; i < trend.length; i++) {
+      if (trend[i].value == maxV) {
+        maxIdx = i;
+        break;
+      }
+    }
+    return _SectionCard(
+      title: 'Tendencia de ventas',
+      child: SizedBox(
+        height: 180,
+        child: trend.isEmpty
+            ? const EmptyState(
+                icon: Icons.bar_chart, message: 'Sin datos en el rango')
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (var i = 0; i < trend.length; i++)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(
+                                  begin: 0,
+                                  end: (140 * (trend[i].value / maxV))
+                                      .clamp(4, 140)
+                                      .toDouble()),
+                              duration: Duration(milliseconds: 500 + i * 60),
+                              curve: Curves.easeOutCubic,
+                              builder: (_, h, __) => Container(
+                                height: h,
+                                decoration: BoxDecoration(
+                                  gradient: i == maxIdx
+                                      ? const LinearGradient(
+                                          colors: [
+                                            BrandColors.orangeBright,
+                                            BrandColors.orangeDeep
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        )
+                                      : null,
+                                  color: i == maxIdx
+                                      ? null
+                                      : const Color(0xFFFFE2BD),
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(8)),
+                                  boxShadow: i == maxIdx
+                                      ? Shadows.glow(BrandColors.orange,
+                                          opacity: 0.35)
+                                      : null,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                            const SizedBox(height: Sp.sm),
+                            Text(_short(trend[i].label),
+                                style: const TextStyle(
+                                    fontSize: 11, color: BrandColors.inkSoft),
+                                maxLines: 1),
+                          ],
+                        ),
+                      ),
                     ),
-            ),
-          ],
-        ),
+                ],
+              ),
       ),
     );
   }
 
   String _short(String isoDay) =>
-      isoDay.length >= 10 ? isoDay.substring(5) : isoDay; // MM-DD
+      isoDay.length >= 10 ? isoDay.substring(5) : isoDay;
 }
 
 class _ServiceTypeCard extends StatelessWidget {
@@ -207,38 +287,96 @@ class _ServiceTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     const labels = {
       'mesa': 'Para aquí',
       'llevar': 'Para llevar',
       'domicilio': 'Domicilio'
     };
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Por tipo de servicio', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 12),
-            if (rows.isEmpty)
-              Text('Sin ventas',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant))
-            else
-              for (final r in rows)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(labels[r.type] ?? r.type),
-                      Text(money(r.amount),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                    ],
-                  ),
+    const dots = {
+      'mesa': BrandColors.orange,
+      'llevar': Color(0xFF3B82F6),
+      'domicilio': Color(0xFF22C55E),
+    };
+    return _SectionCard(
+      title: 'Por tipo de servicio',
+      child: Column(
+        children: [
+          if (rows.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: Sp.lg),
+              child: Text('Sin ventas en el período',
+                  style: TextStyle(color: BrandColors.inkFaint)),
+            )
+          else
+            for (final r in rows)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                          color: dots[r.type] ?? BrandColors.inkFaint,
+                          shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: Sp.sm),
+                    Text(labels[r.type] ?? r.type),
+                    const Spacer(),
+                    Text(money(r.amount),
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                  ],
                 ),
-          ],
-        ),
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopDishesCard extends StatelessWidget {
+  final List<({String name, int qty})> dishes;
+  const _TopDishesCard({required this.dishes});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SectionCard(
+      title: 'Platillos más vendidos',
+      child: Column(
+        children: [
+          if (dishes.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: Sp.lg),
+              child: Text('Aún no hay ventas',
+                  style: TextStyle(color: BrandColors.inkFaint)),
+            )
+          else
+            for (var i = 0; i < dishes.length && i < 5; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: BrandColors.orangeSoft,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Text('${i + 1}',
+                          style: const TextStyle(
+                              color: BrandColors.orangeInk,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12)),
+                    ),
+                    const SizedBox(width: Sp.md),
+                    Expanded(child: Text(dishes[i].name)),
+                    Text('${dishes[i].qty}',
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              ),
+        ],
       ),
     );
   }
@@ -250,73 +388,69 @@ class _LiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Operación en vivo', style: theme.textTheme.titleLarge),
-                const Spacer(),
-                Icon(Icons.circle, size: 10, color: context.semanticGreen),
-                const SizedBox(width: 6),
-                Text('tiempo real',
-                    style: TextStyle(color: context.semanticGreen)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _live('${data.tablesOccupied}/${data.tablesTotal}',
-                    'Mesas ocupadas', Icons.table_restaurant),
-                _live('${data.activeAccounts}', 'Cuentas activas',
-                    Icons.receipt_long),
-                _live('${data.kitchenTickets}', 'Comandas cocina',
-                    Icons.soup_kitchen),
-                _live('${data.barTickets}', 'Comandas barra', Icons.local_bar),
-              ],
-            ),
-          ],
-        ),
+    return _SectionCard(
+      title: 'Operación en vivo',
+      trailing: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.circle, size: 9, color: Color(0xFF22C55E)),
+          SizedBox(width: 5),
+          Text('tiempo real',
+              style: TextStyle(
+                  color: Color(0xFF1E7D34),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12)),
+        ],
+      ),
+      child: Wrap(
+        spacing: Sp.md,
+        runSpacing: Sp.md,
+        children: [
+          _live('${data.tablesOccupied}/${data.tablesTotal}', 'Mesas ocupadas',
+              Icons.table_restaurant, BrandColors.orange),
+          _live('${data.activeAccounts}', 'Cuentas activas',
+              Icons.receipt_long, const Color(0xFF3B82F6)),
+          _live('${data.kitchenTickets}', 'Comandas cocina',
+              Icons.outdoor_grill, const Color(0xFFF59E0B)),
+          _live('${data.barTickets}', 'Comandas barra', Icons.local_bar,
+              const Color(0xFF22C55E)),
+        ],
       ),
     );
   }
 
-  Widget _live(String value, String label, IconData icon) => Builder(
-        builder: (context) {
-          final theme = Theme.of(context);
-          return Container(
-            width: 200,
-            padding: const EdgeInsets.all(12),
+  Widget _live(String value, String label, IconData icon, Color color) {
+    return Container(
+      width: 190,
+      padding: const EdgeInsets.all(Sp.md),
+      decoration: BoxDecoration(
+        color: BrandColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(Rad.md),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, color: theme.colorScheme.primary),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(value, style: theme.textTheme.titleLarge),
-                    Text(label, style: theme.textTheme.labelMedium),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
-}
-
-extension on BuildContext {
-  Color get semanticGreen => Theme.of(this).brightness == Brightness.dark
-      ? const Color(0xFF7BE0A0)
-      : const Color(0xFF1E7D34);
+                color: color.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(Rad.sm)),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: Sp.md),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w800)),
+              Text(label,
+                  style: const TextStyle(
+                      color: BrandColors.inkSoft, fontSize: 12)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
