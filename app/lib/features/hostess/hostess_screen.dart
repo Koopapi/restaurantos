@@ -10,8 +10,16 @@ import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 
-/// Lista de Espera (hostess): grupos en espera + alta de grupo. Sugiere la mesa
-/// libre más pequeña que alcanza y la sienta (`/waitlist`).
+/// Mesa libre más pequeña que alcanza para `size` (cálculo EN VIVO sobre las
+/// mesas actuales, no la sugerencia fija del backend).
+RestaurantTable? _bestTable(List<RestaurantTable> tables, int size) {
+  final fit = tables.where((t) => t.isFree && t.capacity >= size).toList()
+    ..sort((a, b) => a.capacity.compareTo(b.capacity));
+  return fit.isEmpty ? null : fit.first;
+}
+
+/// Lista de Espera (hostess): anota grupos y los sienta en una mesa libre que
+/// alcanza (la pasa a "por atender" y notifica a los meseros). `/waitlist`.
 class HostessScreen extends ConsumerWidget {
   const HostessScreen({super.key});
 
@@ -20,29 +28,62 @@ class HostessScreen extends ConsumerWidget {
     final waitlistAsync = ref.watch(waitlistProvider);
     final tables = ref.watch(tablesProvider).value ?? const <RestaurantTable>[];
     final wide = MediaQuery.sizeOf(context).width >= 840;
+    final freeCount = tables.where((t) => t.isFree).length;
 
     final list = waitlistAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => EmptyState(icon: Icons.cloud_off, message: '$e'),
       data: (entries) {
         final waiting = entries.where((e) => e.isWaiting).toList();
-        if (waiting.isEmpty) {
-          return const EmptyState(
-              icon: Icons.event_seat, message: 'Nadie en espera');
-        }
-        return ListView.separated(
-          padding: const EdgeInsets.all(Sp.xl),
-          itemCount: waiting.length,
-          separatorBuilder: (_, __) => const SizedBox(height: Sp.md),
-          itemBuilder: (_, i) => _EntryCard(
-            index: i + 1,
-            entry: waiting[i],
-            tables: tables,
-            onSeat: () => _seat(context, ref, waiting[i]),
-          )
-              .animate()
-              .fadeIn(duration: 220.ms, delay: (i * 30).ms)
-              .slideX(begin: 0.06, end: 0, curve: Curves.easeOut),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Sp.xl, Sp.lg, Sp.xl, Sp.sm),
+              child: Row(
+                children: [
+                  Text('Lista de Espera',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: Sp.md, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: const Color(0x1A22C55E),
+                        borderRadius: BorderRadius.circular(Rad.pill)),
+                    child: Text('$freeCount mesas libres',
+                        style: const TextStyle(
+                            color: Color(0xFF1E7D34),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12)),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: waiting.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.event_seat,
+                      message: 'Nadie en espera. Agrega un grupo.')
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
+                      itemCount: waiting.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: Sp.md),
+                      itemBuilder: (_, i) => _EntryCard(
+                        index: i + 1,
+                        entry: waiting[i],
+                        best: _bestTable(tables, waiting[i].size),
+                        onSeat: () => _seat(context, ref, waiting[i], tables),
+                      )
+                          .animate()
+                          .fadeIn(duration: 220.ms, delay: (i * 30).ms)
+                          .slideX(begin: 0.06, end: 0, curve: Curves.easeOut),
+                    ),
+            ),
+          ],
         );
       },
     );
@@ -71,11 +112,11 @@ class HostessScreen extends ConsumerWidget {
     }
     return Column(
       children: [
+        Expanded(child: list),
         Padding(
-          padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.lg, Sp.lg, 0),
+          padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.lg),
           child: AppCard(child: form),
         ),
-        Expanded(child: list),
       ],
     );
   }
@@ -93,13 +134,75 @@ class HostessScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _seat(
-      BuildContext context, WidgetRef ref, WaitlistEntry entry) async {
-    final tableId = entry.suggestedTableId;
-    if (tableId == null) {
-      showError(context, 'No hay mesa libre que alcance para el grupo');
-      return;
-    }
+  /// Abre un selector de mesas libres que alcanzan y sienta al grupo en la
+  /// elegida (la mesa pasa a "por atender" → notifica a los meseros).
+  Future<void> _seat(BuildContext context, WidgetRef ref, WaitlistEntry entry,
+      List<RestaurantTable> tables) async {
+    final fit = tables.where((t) => t.isFree && t.capacity >= entry.size).toList()
+      ..sort((a, b) => a.capacity.compareTo(b.capacity));
+
+    final tableId = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: BrandColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(Sp.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Sentar a ${entry.name}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+            Text('${entry.size} personas · elige la mesa',
+                style: const TextStyle(color: BrandColors.inkSoft)),
+            const SizedBox(height: Sp.lg),
+            if (fit.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: Sp.lg),
+                child: Text('No hay mesa libre que alcance para el grupo.',
+                    style: TextStyle(color: BrandColors.inkFaint)),
+              )
+            else
+              Wrap(
+                spacing: Sp.md,
+                runSpacing: Sp.md,
+                children: [
+                  for (final t in fit)
+                    PressableScale(
+                      onTap: () => Navigator.pop(context, t.id),
+                      child: Container(
+                        width: 120,
+                        padding: const EdgeInsets.symmetric(vertical: Sp.lg),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: BrandColors.surface,
+                          borderRadius: BorderRadius.circular(Rad.md),
+                          boxShadow: Shadows.soft,
+                          border: Border.all(color: BrandColors.hairline),
+                        ),
+                        child: Column(
+                          children: [
+                            Text('Mesa ${t.number}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 16)),
+                            Text('${t.capacity} asientos',
+                                style: const TextStyle(
+                                    color: BrandColors.inkFaint, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (tableId == null) return;
     try {
       await ref
           .read(serviceRepositoryProvider)
@@ -108,7 +211,7 @@ class HostessScreen extends ConsumerWidget {
       ref.invalidate(tablesProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${entry.name} sentado')),
+          SnackBar(content: Text('${entry.name} sentado · mesa por atender')),
         );
       }
     } catch (e) {
@@ -120,27 +223,17 @@ class HostessScreen extends ConsumerWidget {
 class _EntryCard extends StatelessWidget {
   final int index;
   final WaitlistEntry entry;
-  final List<RestaurantTable> tables;
+  final RestaurantTable? best;
   final VoidCallback onSeat;
   const _EntryCard(
       {required this.index,
       required this.entry,
-      required this.tables,
+      required this.best,
       required this.onSeat});
 
   @override
   Widget build(BuildContext context) {
-    int? suggestedNumber;
-    if (entry.suggestedTableId != null) {
-      for (final t in tables) {
-        if (t.id == entry.suggestedTableId) {
-          suggestedNumber = t.number;
-          break;
-        }
-      }
-    }
-    final canSeat = suggestedNumber != null;
-
+    final available = best != null;
     return AppCard(
       padding: const EdgeInsets.all(Sp.lg),
       child: Row(
@@ -191,15 +284,17 @@ class _EntryCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: Sp.sm, vertical: 3),
                   decoration: BoxDecoration(
-                    color: canSeat
+                    color: available
                         ? const Color(0x1A22C55E)
                         : BrandColors.surfaceAlt,
                     borderRadius: BorderRadius.circular(Rad.pill),
                   ),
                   child: Text(
-                    canSeat ? 'Mesa $suggestedNumber lista' : 'Sin mesa disponible',
+                    available
+                        ? 'Mesa ${best!.number} disponible'
+                        : 'Esperando mesa',
                     style: TextStyle(
-                      color: canSeat
+                      color: available
                           ? const Color(0xFF1E7D34)
                           : BrandColors.inkFaint,
                       fontWeight: FontWeight.w700,
@@ -217,7 +312,7 @@ class _EntryCard extends StatelessWidget {
               label: 'Sentar',
               icon: Icons.event_seat,
               height: 48,
-              onTap: canSeat ? onSeat : null,
+              onTap: available ? onSeat : null,
             ),
           ),
         ],
