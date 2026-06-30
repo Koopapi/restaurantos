@@ -24,7 +24,7 @@ npm start          # http://localhost:4000  ·  ws://localhost:4000
 ## Alcance (resumen)
 
 - **Auth:** login por empleado + PIN → sesión con rol (server-side).
-- **Ciclo de servicio** (`docs/api.md`): mesas, menú, cuentas/líneas, tickets KDS, pagos, waitlist.
+- **Ciclo de servicio:** mesas, menú, cuentas/líneas, tickets KDS, pagos, waitlist (ver `src/routes/`).
 - **Administración** (`docs/api-admin.md`): menú CRUD + colecciones, empleados, turnos, inventario, compras (sugerencias heurísticas + órdenes), reportes, dashboard y `PUT /config` (marca blanca).
 - **WebSocket:** difusión en tiempo real. Eventos: `snapshot`, `table:*`, `account:updated`, `ticket:*`, `dish:ready`, `waitlist:updated`, `menu:updated`, `inventory:updated`, `employee:updated`, `config:updated`.
 - **Reglas de negocio:** IDs asignados por el servidor; el mesero no avanza estados de cocina (solo entrega); ruteo Comida→Cocina, Bebidas→Barra; totales server-side.
