@@ -2,6 +2,7 @@
 // Mutations emit domain events on `events` (EventEmitter); realtime.js broadcasts them.
 // Swappable for PostgreSQL later behind the same function contracts.
 import { EventEmitter } from 'node:events';
+import menuData from './menu-data.js';
 
 export const events = new EventEmitter();
 
@@ -74,18 +75,10 @@ export function seed(overrides = {}) {
     });
   }
 
-  db.menu = [
-    item('Aguachile Verde', 'Camarón crudo en limón, chile serrano y pepino', 189, 'Aguachiles', 'Camarón', 'cocina', ['cebolla', 'pepino', 'cilantro'], [{ name: 'Extra camarón', price: 45 }, { name: 'Sin chile', price: 0 }]),
-    item('Aguachile Negro', 'Camarón en salsa de chiles secos y soya', 199, 'Aguachiles', 'Camarón', 'cocina', ['cebolla morada', 'pepino'], [{ name: 'Extra camarón', price: 45 }]),
-    item('Ceviche de Pescado', 'Pescado fresco, jitomate, cebolla y limón', 169, 'Ceviches', 'Pescado', 'cocina', ['jitomate', 'cebolla', 'cilantro', 'aguacate'], [{ name: 'Tostadas extra', price: 25 }]),
-    item('Ceviche Mixto', 'Pescado, camarón y pulpo', 219, 'Ceviches', 'Mixto', 'cocina', ['jitomate', 'cebolla', 'aguacate'], []),
-    item('Tostada de Atún', 'Atún sellado, aguacate y chipotle', 145, 'Tostadas', 'Atún', 'cocina', ['aguacate', 'ajonjolí'], [{ name: 'Extra aguacate', price: 20 }]),
-    item('Cerveza Clara', 'Botella 355ml', 55, 'Bebidas', 'Cervezas', 'barra', [], [{ name: 'Michelada', price: 25 }]),
-    item('Margarita', 'Tequila, limón y sal', 120, 'Bebidas', 'Cócteles', 'barra', ['sal'], [{ name: 'Doble', price: 60 }]),
-    item('Agua de Horchata', 'Vaso 500ml', 45, 'Bebidas', 'Aguas frescas', 'barra', [], []),
-    item('Refresco', 'Lata 355ml', 35, 'Bebidas', 'Refrescos', 'barra', [], []),
-    item('Limonada', 'Natural o mineral', 45, 'Bebidas', 'Aguas frescas', 'barra', [], [{ name: 'Mineral', price: 10 }]),
-  ];
+  // Catálogo real de El Pirrus (147 platillos) desde menu-data.js.
+  db.menu = menuData.map((m) =>
+    item(m.name, m.description, m.price, m.category, m.subcategory, m.station, m.ingredients, m.modifiers),
+  );
 
   db.config = {
     brandName: 'El Pirrus',
