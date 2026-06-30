@@ -7,6 +7,7 @@ import '../models/app_config.dart';
 import '../models/menu_item.dart';
 import '../models/restaurant_table.dart';
 import '../models/ticket.dart';
+import '../models/waitlist_entry.dart';
 
 // --- UI state ---
 /// Índice del destino seleccionado en el shell (permite cambiar de pestaña
@@ -139,3 +140,21 @@ class TicketsNotifier extends FamilyAsyncNotifier<List<Ticket>, String> {
 final ticketsProvider =
     AsyncNotifierProvider.family<TicketsNotifier, List<Ticket>, String>(
         TicketsNotifier.new);
+
+// --- Lista de espera (hostess) ---
+class WaitlistNotifier extends AsyncNotifier<List<WaitlistEntry>> {
+  @override
+  Future<List<WaitlistEntry>> build() async {
+    ref.listen(realtimeEventsProvider, (_, next) {
+      final t = next.valueOrNull?.type ?? '';
+      if (t.startsWith('waitlist') || t.startsWith('table')) {
+        ref.invalidateSelf();
+      }
+    });
+    return ref.watch(serviceRepositoryProvider).waitlist();
+  }
+}
+
+final waitlistProvider =
+    AsyncNotifierProvider<WaitlistNotifier, List<WaitlistEntry>>(
+        WaitlistNotifier.new);

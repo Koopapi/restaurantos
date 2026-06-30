@@ -4,14 +4,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'features/accounts/accounts_screen.dart';
 import 'features/auth/auth_controller.dart';
 import 'features/auth/employee.dart';
+import 'features/hostess/hostess_screen.dart';
 import 'features/kds/kds_screen.dart';
 import 'features/pos/pos_screen.dart';
+import 'features/tables/tables_screen.dart';
 import 'models/account.dart';
 import 'models/app_config.dart';
 import 'models/menu_item.dart';
+import 'models/restaurant_table.dart';
 import 'models/ticket.dart';
+import 'models/waitlist_entry.dart';
 import 'state/providers.dart';
 import 'theme/theme.dart';
 import 'theme/tokens.dart';
@@ -176,9 +181,59 @@ List<Ticket> _tickets() {
   ];
 }
 
+const _tables = <RestaurantTable>[
+  RestaurantTable(id: 'tbl1', number: 1, capacity: 2, status: 'ocupada', party: 2),
+  RestaurantTable(id: 'tbl2', number: 2, capacity: 4, status: 'disponible'),
+  RestaurantTable(id: 'tbl3', number: 3, capacity: 4, status: 'disponible'),
+  RestaurantTable(id: 'tbl4', number: 4, capacity: 2, status: 'disponible'),
+  RestaurantTable(id: 'tbl5', number: 5, capacity: 6, status: 'disponible'),
+  RestaurantTable(id: 'tbl6', number: 6, capacity: 2, status: 'reservada', reserveName: 'Familia López', reserveTime: '20:00'),
+  RestaurantTable(id: 'tbl7', number: 7, capacity: 4, status: 'disponible'),
+  RestaurantTable(id: 'tbl8', number: 8, capacity: 8, status: 'disponible'),
+  RestaurantTable(id: 'tbl9', number: 9, capacity: 4, status: 'por_atender'),
+  RestaurantTable(id: 'tbl10', number: 10, capacity: 2, status: 'fuera_servicio'),
+  RestaurantTable(id: 'tbl11', number: 11, capacity: 6, status: 'disponible'),
+  RestaurantTable(id: 'tbl12', number: 12, capacity: 4, status: 'disponible'),
+];
+
+const _account2 = Account(
+  id: 'acc2',
+  serviceType: 'llevar',
+  waiterId: 'emp_diana',
+  status: 'abierta',
+  lines: [
+    AccountLine(id: 'l9', menuItemId: 'm6', name: 'Tostada de Atún', qty: 3, unitPrice: 95, station: 'cocina', sent: true),
+  ],
+  subtotal: 285,
+  tax: 24.2,
+  total: 309.2,
+);
+
+const _waitlist = <WaitlistEntry>[
+  WaitlistEntry(id: 'wl1', name: 'Familia Pérez', size: 4, phone: '55 1234 5678', status: 'esperando', suggestedTableId: 'tbl3'),
+  WaitlistEntry(id: 'wl2', name: 'Roberto y Ana', size: 2, status: 'esperando', suggestedTableId: 'tbl4'),
+  WaitlistEntry(id: 'wl3', name: 'Grupo Hernández', size: 8, status: 'esperando', suggestedTableId: 'tbl8'),
+  WaitlistEntry(id: 'wl4', name: 'Sofía M.', size: 10, status: 'esperando'),
+];
+
 class _FakeAccountNotifier extends CurrentAccountNotifier {
   @override
   Future<Account> build(String accountId) async => _account;
+}
+
+class _FakeTables extends TablesNotifier {
+  @override
+  Future<List<RestaurantTable>> build() async => _tables;
+}
+
+class _FakeOpenAccounts extends OpenAccountsNotifier {
+  @override
+  Future<List<Account>> build() async => const [_account, _account2];
+}
+
+class _FakeWaitlist extends WaitlistNotifier {
+  @override
+  Future<List<WaitlistEntry>> build() async => _waitlist;
 }
 
 class _FakeTickets extends TicketsNotifier {
@@ -204,6 +259,9 @@ void main() {
         currentAccountProvider.overrideWith(_FakeAccountNotifier.new),
         ticketsProvider.overrideWith(_FakeTickets.new),
         authControllerProvider.overrideWith(_FakeAuth.new),
+        tablesProvider.overrideWith(_FakeTables.new),
+        openAccountsProvider.overrideWith(_FakeOpenAccounts.new),
+        waitlistProvider.overrideWith(_FakeWaitlist.new),
       ],
       child: const _PreviewApp(),
     ),
@@ -234,7 +292,10 @@ class _PreviewAppState extends State<_PreviewApp> {
               child: SegmentedButton<int>(
                 segments: const [
                   ButtonSegment(value: 0, label: Text('POS')),
-                  ButtonSegment(value: 1, label: Text('Cocina KDS')),
+                  ButtonSegment(value: 1, label: Text('KDS')),
+                  ButtonSegment(value: 2, label: Text('Mesas')),
+                  ButtonSegment(value: 3, label: Text('Cuentas')),
+                  ButtonSegment(value: 4, label: Text('Hostess')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -242,9 +303,13 @@ class _PreviewAppState extends State<_PreviewApp> {
             ),
           ],
         ),
-        body: _screen == 0
-            ? const PosScreen()
-            : const KdsScreen(station: 'cocina'),
+        body: switch (_screen) {
+          0 => const PosScreen(),
+          1 => const KdsScreen(station: 'cocina'),
+          2 => const TablesScreen(initialSelectedId: 'tbl1'),
+          3 => const AccountsScreen(),
+          _ => const HostessScreen(),
+        },
       ),
     );
   }

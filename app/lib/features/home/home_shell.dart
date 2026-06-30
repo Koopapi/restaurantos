@@ -12,6 +12,7 @@ import '../admin/purchasing_screen.dart';
 import '../admin/reports_screen.dart';
 import '../auth/auth_controller.dart';
 import '../auth/employee.dart';
+import '../hostess/hostess_screen.dart';
 import '../kds/kds_screen.dart';
 import '../pos/pos_screen.dart';
 import '../tables/tables_screen.dart';
@@ -88,6 +89,8 @@ class HomeShell extends ConsumerWidget {
         return const PosScreen();
       case 'Mesas':
         return const TablesScreen();
+      case 'Lista de espera':
+        return const HostessScreen();
       case 'Cuentas':
       case 'Cobro':
         return const AccountsScreen();

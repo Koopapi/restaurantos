@@ -5,8 +5,9 @@ import '../../data/repositories.dart';
 import '../../models/account.dart';
 import '../../models/app_config.dart';
 import '../../state/providers.dart';
-import '../../theme/colors.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/ui_kit.dart';
 
 /// Abre la hoja de cobro y, al pagar, libera la selección y vuelve a Mesas.
 Future<void> openCheckout(
@@ -14,7 +15,11 @@ Future<void> openCheckout(
   final paid = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
+    backgroundColor: BrandColors.surface,
     showDragHandle: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
+    ),
     builder: (_) => _CheckoutSheet(account: account),
   );
   if (paid == true) {
@@ -52,30 +57,54 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 8,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
+        left: Sp.xl,
+        right: Sp.xl,
+        top: Sp.sm,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + Sp.xl,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Cobrar', style: theme.textTheme.headlineSmall),
-          const SizedBox(height: 4),
-          Text('Total a cobrar: ${money(_grandTotal)}',
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(color: theme.colorScheme.primary)),
-          const SizedBox(height: 16),
+          const Text('Cobrar',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+          const SizedBox(height: Sp.lg),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(Sp.lg),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFF1DE), Color(0xFFFFE2BD)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(Rad.lg),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Total a cobrar',
+                    style: TextStyle(
+                        color: BrandColors.orangeInk,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(money(_grandTotal),
+                    style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
+                        color: BrandColors.orangeInk)),
+              ],
+            ),
+          ),
+          const SizedBox(height: Sp.lg),
           SegmentedButton<String>(
             segments: const [
               ButtonSegment(
                   value: 'efectivo',
                   label: Text('Efectivo'),
-                  icon: Icon(Icons.payments)),
+                  icon: Icon(Icons.payments_outlined)),
               ButtonSegment(
                   value: 'tarjeta',
                   label: Text('Tarjeta'),
@@ -88,51 +117,63 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
             selected: {_method},
             onSelectionChanged: (s) => setState(() => _method = s.first),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Sp.lg),
           TextField(
             controller: _tip,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
-                labelText: 'Propina (opcional)', prefixText: '\$'),
+                labelText: 'Propina (opcional)', prefixText: '\$ '),
             onChanged: (_) => setState(() {}),
           ),
           if (_method == 'efectivo') ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Sp.md),
             TextField(
               controller: _received,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                  labelText: 'Efectivo recibido', prefixText: '\$'),
+                  labelText: 'Efectivo recibido', prefixText: '\$ '),
               onChanged: (_) => setState(() {}),
             ),
-            const SizedBox(height: 8),
-            if (_change != null)
-              Text(
-                _change! >= 0
-                    ? 'Cambio: ${money(_change!)}'
-                    : 'Falta ${money(-_change!)}',
-                style: TextStyle(
+            if (_change != null) ...[
+              const SizedBox(height: Sp.md),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(Sp.md),
+                decoration: BoxDecoration(
                   color: _change! >= 0
-                      ? context.semanticSuccess
-                      : theme.colorScheme.error,
-                  fontWeight: FontWeight.w600,
+                      ? const Color(0x1A22C55E)
+                      : const Color(0x1AD92D20),
+                  borderRadius: BorderRadius.circular(Rad.md),
+                ),
+                child: Text(
+                  _change! >= 0
+                      ? 'Cambio: ${money(_change!)}'
+                      : 'Falta ${money(-_change!)}',
+                  style: TextStyle(
+                    color: _change! >= 0
+                        ? const Color(0xFF1E7D34)
+                        : const Color(0xFFD92D20),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
                 ),
               ),
+            ],
           ],
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _busy || !_canPay ? null : _pay,
-              child: _busy
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text('Cobrar ${money(_grandTotal)}'),
-            ),
-          ),
+          const SizedBox(height: Sp.xl),
+          _busy
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(Sp.md),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : GradientButton(
+                  label: 'Cobrar ${money(_grandTotal)}',
+                  icon: Icons.check_rounded,
+                  onTap: _canPay ? _pay : null,
+                ),
         ],
       ),
     );
@@ -162,8 +203,4 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
       }
     }
   }
-}
-
-extension on BuildContext {
-  Color get semanticSuccess => semantic.success;
 }

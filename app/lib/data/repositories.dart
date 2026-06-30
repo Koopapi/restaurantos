@@ -7,6 +7,7 @@ import '../models/app_config.dart';
 import '../models/menu_item.dart';
 import '../models/restaurant_table.dart';
 import '../models/ticket.dart';
+import '../models/waitlist_entry.dart';
 
 /// Acceso REST al ciclo de servicio (`docs/api.md`). Una sola clase para
 /// mantener el cableado simple en esta fase.
@@ -138,6 +139,31 @@ class ServiceRepository {
       _dio.post('/tickets/$id/advance');
   Future<void> deliverTicket(String id) async =>
       _dio.post('/tickets/$id/deliver');
+
+  // --- Lista de espera (hostess) ---
+  Future<List<WaitlistEntry>> waitlist() async {
+    final r = await _dio.get<List<dynamic>>('/waitlist');
+    return r.data!
+        .map((e) => WaitlistEntry.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<WaitlistEntry> addWaitlist({
+    required String name,
+    required int size,
+    String? phone,
+  }) async {
+    final r = await _dio.post<Map<String, dynamic>>('/waitlist', data: {
+      'name': name,
+      'size': size,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+    });
+    return WaitlistEntry.fromJson(r.data!);
+  }
+
+  Future<void> seatWaitlist(String id, {required String tableId}) async {
+    await _dio.post('/waitlist/$id/seat', data: {'tableId': tableId});
+  }
 }
 
 final serviceRepositoryProvider = Provider<ServiceRepository>(
