@@ -38,3 +38,9 @@ app/android/key.properties
 *.apk
 *.aab
 *.log
+
+# ───────── No versionar (referencia local / editor) ─────────
+# Demo1: demo React compilado (artefacto de referencia local)
+Demo1/
+# workspace de editor (VS Code)
+*.code-workspace
