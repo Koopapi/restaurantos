@@ -12,9 +12,12 @@ import 'features/kds/kds_screen.dart';
 import 'features/pos/pos_screen.dart';
 import 'features/tables/tables_screen.dart';
 import 'features/admin/brand_screen.dart';
+import 'features/admin/crear_menu_screen.dart';
 import 'features/admin/dashboard_screen.dart';
 import 'features/admin/inventory_screen.dart';
+import 'features/admin/menu_admin_screen.dart';
 import 'features/admin/shifts_screen.dart';
+import 'models/menu_collection.dart';
 import 'models/shift.dart';
 import 'models/admin.dart';
 import 'state/admin_providers.dart';
@@ -303,6 +306,10 @@ class _FakeEmployees extends EmployeesNotifier {
   Future<List<Employee>> build() async => _employees;
 }
 
+const _collections = <MenuCollection>[
+  MenuCollection(id: 'col1', name: 'Menú Almuerzo', active: true, schedule: '13:00 - 17:00', itemIds: ['m1', 'm2', 'm5']),
+];
+
 List<Shift> _shifts() {
   final now = DateTime.now();
   String iso(DateTime d) =>
@@ -347,6 +354,7 @@ void main() {
         inventoryProvider.overrideWith(_FakeInventory.new),
         employeesProvider.overrideWith(_FakeEmployees.new),
         shiftsProvider.overrideWith((ref) async => _shifts()),
+        collectionsProvider.overrideWith((ref) async => _collections),
       ],
       child: const _PreviewApp(),
     ),
@@ -385,6 +393,8 @@ class _PreviewAppState extends State<_PreviewApp> {
                   ButtonSegment(value: 6, label: Text('Inventario')),
                   ButtonSegment(value: 7, label: Text('Marca')),
                   ButtonSegment(value: 8, label: Text('Turnos')),
+                  ButtonSegment(value: 9, label: Text('Menú')),
+                  ButtonSegment(value: 10, label: Text('CrearM')),
                 ],
                 selected: {_screen},
                 onSelectionChanged: (s) => setState(() => _screen = s.first),
@@ -401,7 +411,9 @@ class _PreviewAppState extends State<_PreviewApp> {
           5 => const DashboardScreen(),
           6 => const InventoryScreen(),
           7 => const BrandScreen(),
-          _ => const ShiftsScreen(),
+          8 => const ShiftsScreen(),
+          9 => const MenuAdminScreen(initialSelectedId: 'm1'),
+          _ => const CrearMenuScreen(),
         },
       ),
     );
