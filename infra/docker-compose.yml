@@ -1,0 +1,41 @@
+# RestaurantOS — stack de contenedores.
+#
+# Fase piloto: solo el backend Node (store en memoria). Cuando se migre a
+# PostgreSQL (ver docs/api.md) se añade aquí un servicio `db` y la variable
+# DATABASE_URL, sin cambiar los contratos.
+#
+# Uso (desde la raíz del repo):
+#   bash scripts/bootstrap.sh                  # genera .env + levanta el stack
+#   # o manualmente:
+#   docker compose --env-file .env -f infra/docker-compose.yml up -d --build
+#
+# `name` fija el nombre del proyecto para que NO colisione con otros stacks
+# cuyo compose también vive en una carpeta `infra/` (Compose, si no, usa el
+# nombre de la carpeta como proyecto y compartiría contenedores/volúmenes).
+name: restaurantos
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: restaurantos-backend:latest
+    container_name: restaurantos_backend
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      # Secreto para firmar JWT. Lo genera scripts/bootstrap.sh si está vacío.
+      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET en .env (o corre scripts/bootstrap.sh)}
+      # Reglas de negocio por defecto (overridable por tenant vía PUT /api/config).
+      TAX_LABEL: ${TAX_LABEL:-IVA}
+      TAX_RATE: ${TAX_RATE:-0.085}
+      URGENCY_MINUTES: ${URGENCY_MINUTES:-15}
+      MAX_QTY_PER_LINE: ${MAX_QTY_PER_LINE:-20}
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

@@ -1,47 +1,69 @@
 name: App CI (Flutter)
 
-# Se activa cuando exista el proyecto Flutter real (app/pubspec.yaml o app/lib/**).
+# Corre en TODOS los PR/push a main/develop para que el check
+# `analyze-test-build` siempre reporte un resultado (obligatorio en ramas
+# protegidas). Si el PR no toca la app, el job pasa sin compilar.
 on:
   push:
     branches: [main, develop]
-    paths: ['app/pubspec.yaml', 'app/lib/**', '.github/workflows/app-ci.yml']
   pull_request:
     branches: [main, develop]
-    paths: ['app/pubspec.yaml', 'app/lib/**', '.github/workflows/app-ci.yml']
   workflow_dispatch: {}
 
 jobs:
   analyze-test-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v4
 
+      # ¿El PR/push toca la app Flutter?
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            app:
+              - 'app/**'
+              - '.github/workflows/app-ci.yml'
+
       - name: Setup Java (para build Android)
+        if: steps.changes.outputs.app == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Setup Flutter
+        if: steps.changes.outputs.app == 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
       - name: Get dependencies
+        if: steps.changes.outputs.app == 'true'
+        working-directory: app
         run: flutter pub get
 
       - name: Format check
+        if: steps.changes.outputs.app == 'true'
+        working-directory: app
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze
+        if: steps.changes.outputs.app == 'true'
+        working-directory: app
         run: flutter analyze
 
       - name: Tests
+        if: steps.changes.outputs.app == 'true'
+        working-directory: app
         run: flutter test
 
       - name: Build APK (debug)
+        if: steps.changes.outputs.app == 'true'
+        working-directory: app
         run: flutter build apk --debug
+
+      - name: Sin cambios en app
+        if: steps.changes.outputs.app != 'true'
+        run: echo "No hay cambios en app/ — check satisfecho sin compilar."
