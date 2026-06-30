@@ -193,16 +193,24 @@ List<Ticket> _tickets() {
 }
 
 const _tables = <RestaurantTable>[
-  RestaurantTable(id: 'tbl1', number: 1, capacity: 2, status: 'ocupada', party: 2),
+  RestaurantTable(
+      id: 'tbl1', number: 1, capacity: 2, status: 'ocupada', party: 2),
   RestaurantTable(id: 'tbl2', number: 2, capacity: 4, status: 'disponible'),
   RestaurantTable(id: 'tbl3', number: 3, capacity: 4, status: 'disponible'),
   RestaurantTable(id: 'tbl4', number: 4, capacity: 2, status: 'disponible'),
   RestaurantTable(id: 'tbl5', number: 5, capacity: 6, status: 'disponible'),
-  RestaurantTable(id: 'tbl6', number: 6, capacity: 2, status: 'reservada', reserveName: 'Familia López', reserveTime: '20:00'),
+  RestaurantTable(
+      id: 'tbl6',
+      number: 6,
+      capacity: 2,
+      status: 'reservada',
+      reserveName: 'Familia López',
+      reserveTime: '20:00'),
   RestaurantTable(id: 'tbl7', number: 7, capacity: 4, status: 'disponible'),
   RestaurantTable(id: 'tbl8', number: 8, capacity: 8, status: 'disponible'),
   RestaurantTable(id: 'tbl9', number: 9, capacity: 4, status: 'por_atender'),
-  RestaurantTable(id: 'tbl10', number: 10, capacity: 2, status: 'fuera_servicio'),
+  RestaurantTable(
+      id: 'tbl10', number: 10, capacity: 2, status: 'fuera_servicio'),
   RestaurantTable(id: 'tbl11', number: 11, capacity: 6, status: 'disponible'),
   RestaurantTable(id: 'tbl12', number: 12, capacity: 4, status: 'disponible'),
 ];
@@ -213,7 +221,14 @@ const _account2 = Account(
   waiterId: 'emp_diana',
   status: 'abierta',
   lines: [
-    AccountLine(id: 'l9', menuItemId: 'm6', name: 'Tostada de Atún', qty: 3, unitPrice: 95, station: 'cocina', sent: true),
+    AccountLine(
+        id: 'l9',
+        menuItemId: 'm6',
+        name: 'Tostada de Atún',
+        qty: 3,
+        unitPrice: 95,
+        station: 'cocina',
+        sent: true),
   ],
   subtotal: 285,
   tax: 24.2,
@@ -221,9 +236,25 @@ const _account2 = Account(
 );
 
 const _waitlist = <WaitlistEntry>[
-  WaitlistEntry(id: 'wl1', name: 'Familia Pérez', size: 4, phone: '55 1234 5678', status: 'esperando', suggestedTableId: 'tbl3'),
-  WaitlistEntry(id: 'wl2', name: 'Roberto y Ana', size: 2, status: 'esperando', suggestedTableId: 'tbl4'),
-  WaitlistEntry(id: 'wl3', name: 'Grupo Hernández', size: 8, status: 'esperando', suggestedTableId: 'tbl8'),
+  WaitlistEntry(
+      id: 'wl1',
+      name: 'Familia Pérez',
+      size: 4,
+      phone: '55 1234 5678',
+      status: 'esperando',
+      suggestedTableId: 'tbl3'),
+  WaitlistEntry(
+      id: 'wl2',
+      name: 'Roberto y Ana',
+      size: 2,
+      status: 'esperando',
+      suggestedTableId: 'tbl4'),
+  WaitlistEntry(
+      id: 'wl3',
+      name: 'Grupo Hernández',
+      size: 8,
+      status: 'esperando',
+      suggestedTableId: 'tbl8'),
   WaitlistEntry(id: 'wl4', name: 'Sofía M.', size: 10, status: 'esperando'),
 ];
 
@@ -280,12 +311,69 @@ const _dash = DashboardData(
 );
 
 const _inventory = <InventoryItem>[
-  InventoryItem(id: 'i1', name: 'Camarón', category: 'Mariscos', unit: 'kg', stock: 18, minStock: 10, status: 'ok', autoReorder: true, cost: 180, supplier: 'Mariscos del Pacífico'),
-  InventoryItem(id: 'i2', name: 'Pulpo', category: 'Mariscos', unit: 'kg', stock: 6, minStock: 8, status: 'bajo', autoReorder: true, cost: 220, supplier: 'Mariscos del Pacífico'),
-  InventoryItem(id: 'i3', name: 'Limón', category: 'Verduras', unit: 'kg', stock: 40, minStock: 25, status: 'ok', autoReorder: false, cost: 25),
-  InventoryItem(id: 'i4', name: 'Cerveza', category: 'Bebidas', unit: 'cartón', stock: 4, minStock: 6, status: 'bajo', autoReorder: true, cost: 280, supplier: 'Distribuidora Sur'),
-  InventoryItem(id: 'i5', name: 'Aguacate', category: 'Verduras', unit: 'pza', stock: 50, minStock: 30, status: 'ok', autoReorder: false, cost: 12),
-  InventoryItem(id: 'i6', name: 'Tostadas', category: 'Abarrotes', unit: 'paq', stock: 22, minStock: 12, status: 'ok', autoReorder: false, cost: 35),
+  InventoryItem(
+      id: 'i1',
+      name: 'Camarón',
+      category: 'Mariscos',
+      unit: 'kg',
+      stock: 18,
+      minStock: 10,
+      status: 'ok',
+      autoReorder: true,
+      cost: 180,
+      supplier: 'Mariscos del Pacífico'),
+  InventoryItem(
+      id: 'i2',
+      name: 'Pulpo',
+      category: 'Mariscos',
+      unit: 'kg',
+      stock: 6,
+      minStock: 8,
+      status: 'bajo',
+      autoReorder: true,
+      cost: 220,
+      supplier: 'Mariscos del Pacífico'),
+  InventoryItem(
+      id: 'i3',
+      name: 'Limón',
+      category: 'Verduras',
+      unit: 'kg',
+      stock: 40,
+      minStock: 25,
+      status: 'ok',
+      autoReorder: false,
+      cost: 25),
+  InventoryItem(
+      id: 'i4',
+      name: 'Cerveza',
+      category: 'Bebidas',
+      unit: 'cartón',
+      stock: 4,
+      minStock: 6,
+      status: 'bajo',
+      autoReorder: true,
+      cost: 280,
+      supplier: 'Distribuidora Sur'),
+  InventoryItem(
+      id: 'i5',
+      name: 'Aguacate',
+      category: 'Verduras',
+      unit: 'pza',
+      stock: 50,
+      minStock: 30,
+      status: 'ok',
+      autoReorder: false,
+      cost: 12),
+  InventoryItem(
+      id: 'i6',
+      name: 'Tostadas',
+      category: 'Abarrotes',
+      unit: 'paq',
+      stock: 22,
+      minStock: 12,
+      status: 'ok',
+      autoReorder: false,
+      cost: 35),
 ];
 
 class _FakeInventory extends InventoryNotifier {
@@ -294,12 +382,22 @@ class _FakeInventory extends InventoryNotifier {
 }
 
 const _employees = <Employee>[
-  Employee(id: 'e1', name: 'María García', role: 'mesero', shift: '08:00 - 16:00'),
-  Employee(id: 'e2', name: 'Carlos Ramírez', role: 'mesero', shift: '16:00 - 00:00'),
-  Employee(id: 'e3', name: 'Ana Martínez', role: 'cocina', shift: '10:00 - 18:00'),
-  Employee(id: 'e4', name: 'Luis Pérez', role: 'barista', shift: '14:00 - 22:00'),
-  Employee(id: 'e5', name: 'Sofía Admin', role: 'admin', shift: '09:00 - 18:00'),
-  Employee(id: 'e6', name: 'Valeria Ruiz', role: 'hostess', shift: '12:00 - 20:00', active: false),
+  Employee(
+      id: 'e1', name: 'María García', role: 'mesero', shift: '08:00 - 16:00'),
+  Employee(
+      id: 'e2', name: 'Carlos Ramírez', role: 'mesero', shift: '16:00 - 00:00'),
+  Employee(
+      id: 'e3', name: 'Ana Martínez', role: 'cocina', shift: '10:00 - 18:00'),
+  Employee(
+      id: 'e4', name: 'Luis Pérez', role: 'barista', shift: '14:00 - 22:00'),
+  Employee(
+      id: 'e5', name: 'Sofía Admin', role: 'admin', shift: '09:00 - 18:00'),
+  Employee(
+      id: 'e6',
+      name: 'Valeria Ruiz',
+      role: 'hostess',
+      shift: '12:00 - 20:00',
+      active: false),
 ];
 
 class _FakeEmployees extends EmployeesNotifier {
@@ -308,7 +406,12 @@ class _FakeEmployees extends EmployeesNotifier {
 }
 
 const _collections = <MenuCollection>[
-  MenuCollection(id: 'col1', name: 'Menú Almuerzo', active: true, schedule: '13:00 - 17:00', itemIds: ['m1', 'm2', 'm5']),
+  MenuCollection(
+      id: 'col1',
+      name: 'Menú Almuerzo',
+      active: true,
+      schedule: '13:00 - 17:00',
+      itemIds: ['m1', 'm2', 'm5']),
 ];
 
 List<Shift> _shifts() {
@@ -318,10 +421,34 @@ List<Shift> _shifts() {
   final today = iso(now);
   final tomorrow = iso(now.add(const Duration(days: 1)));
   return [
-    Shift(id: 's1', employeeId: 'e1', date: today, type: 'matutino', start: '09:00', end: '17:00'),
-    Shift(id: 's2', employeeId: 'e3', date: today, type: 'completo', start: '10:00', end: '22:00'),
-    Shift(id: 's3', employeeId: 'e4', date: today, type: 'vespertino', start: '14:00', end: '22:00'),
-    Shift(id: 's4', employeeId: 'e2', date: tomorrow, type: 'vespertino', start: '16:00', end: '00:00'),
+    Shift(
+        id: 's1',
+        employeeId: 'e1',
+        date: today,
+        type: 'matutino',
+        start: '09:00',
+        end: '17:00'),
+    Shift(
+        id: 's2',
+        employeeId: 'e3',
+        date: today,
+        type: 'completo',
+        start: '10:00',
+        end: '22:00'),
+    Shift(
+        id: 's3',
+        employeeId: 'e4',
+        date: today,
+        type: 'vespertino',
+        start: '14:00',
+        end: '22:00'),
+    Shift(
+        id: 's4',
+        employeeId: 'e2',
+        date: tomorrow,
+        type: 'vespertino',
+        start: '16:00',
+        end: '00:00'),
   ];
 }
 

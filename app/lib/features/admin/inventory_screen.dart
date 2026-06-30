@@ -52,10 +52,23 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 spacing: Sp.md,
                 runSpacing: Sp.md,
                 children: [
-                  _Stat(value: '${items.length}', label: 'Artículos', color: BrandColors.ink),
-                  _Stat(value: '$lowCount', label: 'Bajo mínimo', color: const Color(0xFFEF4444), alert: lowCount > 0),
-                  _Stat(value: '$autoCount', label: 'Auto-pedido', color: const Color(0xFF3B82F6)),
-                  _Stat(value: money(value), label: 'Valor', color: BrandColors.orangeInk),
+                  _Stat(
+                      value: '${items.length}',
+                      label: 'Artículos',
+                      color: BrandColors.ink),
+                  _Stat(
+                      value: '$lowCount',
+                      label: 'Bajo mínimo',
+                      color: const Color(0xFFEF4444),
+                      alert: lowCount > 0),
+                  _Stat(
+                      value: '$autoCount',
+                      label: 'Auto-pedido',
+                      color: const Color(0xFF3B82F6)),
+                  _Stat(
+                      value: money(value),
+                      label: 'Valor',
+                      color: BrandColors.orangeInk),
                 ],
               ),
             ),
@@ -88,9 +101,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                   ? const EmptyState(
                       icon: Icons.inventory_2, message: 'Sin insumos')
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
+                      padding:
+                          const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
                       itemCount: list.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: Sp.sm),
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: Sp.sm),
                       itemBuilder: (_, i) => _InventoryTile(item: list[i])
                           .animate()
                           .fadeIn(duration: 200.ms, delay: (i * 18).ms),
@@ -131,8 +146,7 @@ class _Stat extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
-                  color: BrandColors.inkSoft, fontSize: 13)),
+              style: const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
           const SizedBox(height: Sp.xs),
           Text(value,
               style: TextStyle(
@@ -170,8 +184,7 @@ class _Toggle extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.warning_amber_rounded,
-                size: 18,
-                color: selected ? Colors.white : BrandColors.inkSoft),
+                size: 18, color: selected ? Colors.white : BrandColors.inkSoft),
             const SizedBox(width: Sp.xs),
             Text(label,
                 style: TextStyle(
@@ -218,7 +231,8 @@ class _InventoryTile extends ConsumerWidget {
                 Text('${item.stock} ${item.unit}',
                     style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: low ? const Color(0xFFB45309) : BrandColors.ink)),
+                        color:
+                            low ? const Color(0xFFB45309) : BrandColors.ink)),
                 const SizedBox(width: 6),
                 Text('· mín ${item.minStock}',
                     style: const TextStyle(
@@ -234,9 +248,8 @@ class _InventoryTile extends ConsumerWidget {
             ),
             child: Text(low ? 'Bajo' : 'OK',
                 style: TextStyle(
-                    color: low
-                        ? const Color(0xFFB45309)
-                        : const Color(0xFF1E7D34),
+                    color:
+                        low ? const Color(0xFFB45309) : const Color(0xFF1E7D34),
                     fontWeight: FontWeight.w800,
                     fontSize: 12)),
           ),

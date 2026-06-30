@@ -102,7 +102,8 @@ class _CrearMenuScreenState extends ConsumerState<CrearMenuScreen> {
               ),
               Expanded(
                 child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(Sp.xl, Sp.sm, Sp.xl, Sp.xl),
+                  padding:
+                      const EdgeInsets.fromLTRB(Sp.xl, Sp.sm, Sp.xl, Sp.xl),
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const SizedBox(height: Sp.sm),
                   itemBuilder: (_, i) => _DishPick(
@@ -124,9 +125,8 @@ class _CrearMenuScreenState extends ConsumerState<CrearMenuScreen> {
             schedule: _schedule.text,
             count: _selected.length,
             busy: _busy,
-            onCreate: _selected.isEmpty || _name.text.trim().isEmpty
-                ? null
-                : _create,
+            onCreate:
+                _selected.isEmpty || _name.text.trim().isEmpty ? null : _create,
           );
 
           if (wide) {

@@ -64,10 +64,22 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                 spacing: Sp.sm,
                 runSpacing: Sp.sm,
                 children: [
-                  _Stat(label: 'Total', value: tables.length, color: BrandColors.ink),
-                  _Stat(label: 'Ocupadas', value: count('ocupada'), color: const Color(0xFFEF4444)),
-                  _Stat(label: 'Disponibles', value: count('disponible'), color: const Color(0xFF22C55E)),
-                  _Stat(label: 'Reservadas', value: count('reservada'), color: const Color(0xFF3B82F6)),
+                  _Stat(
+                      label: 'Total',
+                      value: tables.length,
+                      color: BrandColors.ink),
+                  _Stat(
+                      label: 'Ocupadas',
+                      value: count('ocupada'),
+                      color: const Color(0xFFEF4444)),
+                  _Stat(
+                      label: 'Disponibles',
+                      value: count('disponible'),
+                      color: const Color(0xFF22C55E)),
+                  _Stat(
+                      label: 'Reservadas',
+                      value: count('reservada'),
+                      color: const Color(0xFF3B82F6)),
                 ],
               ),
             ),
@@ -164,13 +176,25 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     final isHostess = role == 'hostess' || role == 'gerente' || role == 'admin';
 
     if (table.status == 'ocupada' && isWaiter) {
-      return (label: 'Ver cuenta', icon: Icons.receipt_long, onTap: () => _openOccupied(table));
+      return (
+        label: 'Ver cuenta',
+        icon: Icons.receipt_long,
+        onTap: () => _openOccupied(table)
+      );
     }
     if ((table.isFree || table.status == 'por_atender') && isWaiter) {
-      return (label: 'Abrir cuenta', icon: Icons.add, onTap: () => _openOrAssign(table, asWaiter: true));
+      return (
+        label: 'Abrir cuenta',
+        icon: Icons.add,
+        onTap: () => _openOrAssign(table, asWaiter: true)
+      );
     }
     if ((table.isFree || table.status == 'por_atender') && isHostess) {
-      return (label: 'Asignar mesa', icon: Icons.how_to_reg, onTap: () => _openOrAssign(table, asWaiter: false));
+      return (
+        label: 'Asignar mesa',
+        icon: Icons.how_to_reg,
+        onTap: () => _openOrAssign(table, asWaiter: false)
+      );
     }
     return (label: 'Sin acciones', icon: Icons.block, onTap: null);
   }
@@ -267,15 +291,40 @@ typedef _Viz = ({Color color, Color soft, String label, IconData icon});
 _Viz _tableViz(String status) {
   switch (status) {
     case 'disponible':
-      return (color: const Color(0xFF22C55E), soft: const Color(0x1A22C55E), label: 'Disponible', icon: Icons.check_circle);
+      return (
+        color: const Color(0xFF22C55E),
+        soft: const Color(0x1A22C55E),
+        label: 'Disponible',
+        icon: Icons.check_circle
+      );
     case 'ocupada':
-      return (color: const Color(0xFFEF4444), soft: const Color(0x1AEF4444), label: 'Ocupada', icon: Icons.groups);
+      return (
+        color: const Color(0xFFEF4444),
+        soft: const Color(0x1AEF4444),
+        label: 'Ocupada',
+        icon: Icons.groups
+      );
     case 'reservada':
-      return (color: const Color(0xFF3B82F6), soft: const Color(0x1A3B82F6), label: 'Reservada', icon: Icons.event);
+      return (
+        color: const Color(0xFF3B82F6),
+        soft: const Color(0x1A3B82F6),
+        label: 'Reservada',
+        icon: Icons.event
+      );
     case 'por_atender':
-      return (color: const Color(0xFFF59E0B), soft: const Color(0x1AF59E0B), label: 'Por atender', icon: Icons.notifications_active);
+      return (
+        color: const Color(0xFFF59E0B),
+        soft: const Color(0x1AF59E0B),
+        label: 'Por atender',
+        icon: Icons.notifications_active
+      );
     default:
-      return (color: BrandColors.inkFaint, soft: BrandColors.surfaceAlt, label: 'Fuera de servicio', icon: Icons.block);
+      return (
+        color: BrandColors.inkFaint,
+        soft: BrandColors.surfaceAlt,
+        label: 'Fuera de servicio',
+        icon: Icons.block
+      );
   }
 }
 
@@ -359,8 +408,7 @@ class _TableTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: viz.soft,
           borderRadius: BorderRadius.circular(Rad.lg),
-          border: Border.all(
-              color: viz.color, width: selected ? 2.5 : 1.5),
+          border: Border.all(color: viz.color, width: selected ? 2.5 : 1.5),
           boxShadow: selected ? Shadows.glow(viz.color, opacity: 0.3) : null,
         ),
         child: Column(
@@ -377,7 +425,8 @@ class _TableTile extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text('${table.capacity} asientos',
-                style: const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
+                style:
+                    const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
             const Spacer(),
             Text(
               table.status == 'reservada' && table.reserveTime != null
@@ -466,8 +515,7 @@ class _DetailPanel extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: const TextStyle(color: BrandColors.inkSoft)),
-            Text(value,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
           ],
         ),
       );

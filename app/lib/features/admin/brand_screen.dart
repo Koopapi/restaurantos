@@ -80,8 +80,7 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
                               .textTheme
                               .headlineSmall
                               ?.copyWith(fontWeight: FontWeight.w800)),
-                      const Text(
-                          'Personaliza la identidad de tu restaurante',
+                      const Text('Personaliza la identidad de tu restaurante',
                           style: TextStyle(color: BrandColors.inkSoft)),
                     ],
                   ),
@@ -103,8 +102,8 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Color de marca',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w800)),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: Sp.lg),
                   Wrap(
                     spacing: Sp.md,
@@ -135,8 +134,7 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
                         const SizedBox(width: Sp.sm),
                         Text(_hex(_color).substring(1),
                             style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1)),
+                                fontWeight: FontWeight.w800, letterSpacing: 1)),
                         const Spacer(),
                         Container(
                           width: 28,
@@ -158,8 +156,8 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Logo del restaurante',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w800)),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: Sp.md),
                   DottedZone(
                     onTap: () => ScaffoldMessenger.of(context).showSnackBar(
@@ -177,8 +175,8 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Reglas de negocio',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w800)),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: Sp.lg),
                   TextField(
                       controller: _brand,
@@ -255,7 +253,8 @@ class _BrandScreenState extends ConsumerState<BrandScreen> {
       ref.invalidate(configProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Marca publicada · la app se actualizó')),
+          const SnackBar(
+              content: Text('Marca publicada · la app se actualizó')),
         );
       }
     } catch (e) {
@@ -290,8 +289,7 @@ class _Swatch extends StatelessWidget {
           color: color,
           shape: BoxShape.circle,
           border: Border.all(
-              color: selected ? BrandColors.ink : Colors.transparent,
-              width: 3),
+              color: selected ? BrandColors.ink : Colors.transparent, width: 3),
           boxShadow: selected ? Shadows.glow(color, opacity: 0.5) : null,
         ),
         child: selected
@@ -477,7 +475,7 @@ class _LivePreview extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rad.pill),
         ),
         child: Text(label,
-            style: TextStyle(
-                color: c, fontWeight: FontWeight.w700, fontSize: 12)),
+            style:
+                TextStyle(color: c, fontWeight: FontWeight.w700, fontSize: 12)),
       );
 }

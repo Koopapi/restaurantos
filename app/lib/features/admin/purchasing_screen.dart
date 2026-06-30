@@ -72,11 +72,23 @@ class PurchasingScreen extends ConsumerWidget {
 ({Color color, Color soft, String label}) _urgencyViz(String urgency) {
   switch (urgency) {
     case 'alta':
-      return (color: const Color(0xFFEF4444), soft: const Color(0x1AEF4444), label: 'Alta');
+      return (
+        color: const Color(0xFFEF4444),
+        soft: const Color(0x1AEF4444),
+        label: 'Alta'
+      );
     case 'media':
-      return (color: const Color(0xFFF59E0B), soft: const Color(0x1AF59E0B), label: 'Media');
+      return (
+        color: const Color(0xFFF59E0B),
+        soft: const Color(0x1AF59E0B),
+        label: 'Media'
+      );
     default:
-      return (color: BrandColors.inkFaint, soft: BrandColors.surfaceAlt, label: 'Baja');
+      return (
+        color: BrandColors.inkFaint,
+        soft: BrandColors.surfaceAlt,
+        label: 'Baja'
+      );
   }
 }
 
@@ -120,8 +132,7 @@ class _Suggestions extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(s.name,
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
                       Text(
                           'Sugerido: ${s.suggestedQty}${s.supplier != null ? ' · ${s.supplier}' : ''}',
                           style: const TextStyle(
@@ -188,11 +199,23 @@ class _Suggestions extends ConsumerWidget {
 ({Color color, Color soft, String label}) _orderViz(String status) {
   switch (status) {
     case 'aprobada':
-      return (color: const Color(0xFF3B82F6), soft: const Color(0x1A3B82F6), label: 'Aprobada');
+      return (
+        color: const Color(0xFF3B82F6),
+        soft: const Color(0x1A3B82F6),
+        label: 'Aprobada'
+      );
     case 'recibida':
-      return (color: const Color(0xFF22C55E), soft: const Color(0x1A22C55E), label: 'Recibida');
+      return (
+        color: const Color(0xFF22C55E),
+        soft: const Color(0x1A22C55E),
+        label: 'Recibida'
+      );
     default:
-      return (color: const Color(0xFFF59E0B), soft: const Color(0x1AF59E0B), label: 'Sugerida');
+      return (
+        color: const Color(0xFFF59E0B),
+        soft: const Color(0x1AF59E0B),
+        label: 'Sugerida'
+      );
   }
 }
 
@@ -243,8 +266,7 @@ class _OrderCard extends ConsumerWidget {
               ),
             ),
           ),
-          childrenPadding:
-              const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
+          childrenPadding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
           children: [
             for (final it in order.items)
               Padding(

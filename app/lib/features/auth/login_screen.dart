@@ -111,7 +111,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 440),
       child: AppCard(
-        padding: const EdgeInsets.symmetric(horizontal: Sp.xl, vertical: Sp.xxl),
+        padding:
+            const EdgeInsets.symmetric(horizontal: Sp.xl, vertical: Sp.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,7 +141,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               style: const TextStyle(fontWeight: FontWeight.w600),
               decoration: const InputDecoration(
                 hintText: 'Empleado',
-                prefixIcon: Icon(Icons.badge_outlined, color: BrandColors.inkFaint),
+                prefixIcon:
+                    Icon(Icons.badge_outlined, color: BrandColors.inkFaint),
               ),
             ),
             const SizedBox(height: Sp.md),
@@ -397,7 +399,8 @@ class _PinDots extends StatelessWidget {
               color: on ? BrandColors.orange : BrandColors.inkFaint,
               width: 2,
             ),
-            boxShadow: on ? Shadows.glow(BrandColors.orange, opacity: 0.4) : null,
+            boxShadow:
+                on ? Shadows.glow(BrandColors.orange, opacity: 0.4) : null,
           ),
         );
       }),

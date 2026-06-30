@@ -261,9 +261,7 @@ class _StatusPill extends StatelessWidget {
           const SizedBox(width: Sp.xs),
           Text(viz.label,
               style: TextStyle(
-                  color: viz.color,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12)),
+                  color: viz.color, fontWeight: FontWeight.w700, fontSize: 12)),
         ],
       ),
     );
@@ -281,8 +279,8 @@ class _Timer extends StatelessWidget {
     final bg = urgent ? const Color(0x1AD92D20) : BrandColors.surfaceAlt;
     Widget pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: Sp.sm, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Rad.pill)),
+      decoration: BoxDecoration(
+          color: bg, borderRadius: BorderRadius.circular(Rad.pill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

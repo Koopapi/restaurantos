@@ -159,9 +159,8 @@ class GradientButton extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(Rad.pill),
-          boxShadow: enabled
-              ? Shadows.glow(glowColor ?? primary, opacity: 0.4)
-              : null,
+          boxShadow:
+              enabled ? Shadows.glow(glowColor ?? primary, opacity: 0.4) : null,
         ),
         child: Center(
           child: Row(

@@ -80,10 +80,25 @@ class _Content extends StatelessWidget {
           spacing: Sp.md,
           runSpacing: Sp.md,
           children: [
-            _Metric(icon: Icons.payments, value: data.sales, isMoney: true, label: 'Ventas'),
-            _Metric(icon: Icons.receipt_long, value: data.tickets, label: 'Tickets'),
-            _Metric(icon: Icons.trending_up, value: data.avgTicket, isMoney: true, label: 'Ticket promedio'),
-            _Metric(icon: Icons.volunteer_activism, value: data.tips, isMoney: true, label: 'Propinas'),
+            _Metric(
+                icon: Icons.payments,
+                value: data.sales,
+                isMoney: true,
+                label: 'Ventas'),
+            _Metric(
+                icon: Icons.receipt_long,
+                value: data.tickets,
+                label: 'Tickets'),
+            _Metric(
+                icon: Icons.trending_up,
+                value: data.avgTicket,
+                isMoney: true,
+                label: 'Ticket promedio'),
+            _Metric(
+                icon: Icons.volunteer_activism,
+                value: data.tips,
+                isMoney: true,
+                label: 'Propinas'),
           ],
         ),
         const SizedBox(height: Sp.lg),
@@ -156,8 +171,8 @@ class _Metric extends StatelessWidget {
               curve: Curves.easeOutCubic,
               builder: (_, v, __) => Text(
                 isMoney ? money(v) : v.round().toString(),
-                style: const TextStyle(
-                    fontSize: 28, fontWeight: FontWeight.w800),
+                style:
+                    const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
               ),
             ),
             Text(label, style: const TextStyle(color: BrandColors.inkSoft)),
@@ -408,8 +423,8 @@ class _LiveCard extends StatelessWidget {
         children: [
           _live('${data.tablesOccupied}/${data.tablesTotal}', 'Mesas ocupadas',
               Icons.table_restaurant, BrandColors.orange),
-          _live('${data.activeAccounts}', 'Cuentas activas',
-              Icons.receipt_long, const Color(0xFF3B82F6)),
+          _live('${data.activeAccounts}', 'Cuentas activas', Icons.receipt_long,
+              const Color(0xFF3B82F6)),
           _live('${data.kitchenTickets}', 'Comandas cocina',
               Icons.outdoor_grill, const Color(0xFFF59E0B)),
           _live('${data.barTickets}', 'Comandas barra', Icons.local_bar,

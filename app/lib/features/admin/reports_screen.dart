@@ -119,7 +119,8 @@ class ReportsScreen extends ConsumerWidget {
                               _rank(i + 1),
                               const SizedBox(width: Sp.md),
                               Expanded(child: Text(items[i].name)),
-                              Text('${items[i].qty} · ${money(items[i].revenue)}',
+                              Text(
+                                  '${items[i].qty} · ${money(items[i].revenue)}',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       color: BrandColors.inkSoft)),
@@ -190,11 +191,12 @@ class _Metric extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
+                style:
+                    const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
             const SizedBox(height: Sp.xs),
             Text(value,
-                style: const TextStyle(
-                    fontSize: 26, fontWeight: FontWeight.w800)),
+                style:
+                    const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
           ],
         ),
       ),

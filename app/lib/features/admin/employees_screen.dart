@@ -49,7 +49,8 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
         final list = q.isEmpty
             ? employees
             : employees
-                .where((e) => e.name.toLowerCase().contains(q) ||
+                .where((e) =>
+                    e.name.toLowerCase().contains(q) ||
                     e.role.toLowerCase().contains(q))
                 .toList();
         final active = employees.where((e) => e.active).length;
@@ -73,8 +74,8 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
                     onPressed: () => _addEmployee(context, ref),
                     icon: const Icon(Icons.person_add_alt),
                     label: const Text('Agregar'),
-                    style: FilledButton.styleFrom(
-                        minimumSize: const Size(0, 48)),
+                    style:
+                        FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                   ),
                 ],
               ),
@@ -86,8 +87,14 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
                 runSpacing: Sp.md,
                 children: [
                   _Stat(value: '${employees.length}', label: 'Total'),
-                  _Stat(value: '$active', label: 'Activos', color: const Color(0xFF22C55E)),
-                  _Stat(value: '$roles', label: 'Roles', color: const Color(0xFF3B82F6)),
+                  _Stat(
+                      value: '$active',
+                      label: 'Activos',
+                      color: const Color(0xFF22C55E)),
+                  _Stat(
+                      value: '$roles',
+                      label: 'Roles',
+                      color: const Color(0xFF3B82F6)),
                 ],
               ),
             ),
@@ -249,8 +256,8 @@ class _EmployeeTile extends ConsumerWidget {
                         fontWeight: FontWeight.w800, fontSize: 15)),
                 const SizedBox(height: 3),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: Sp.sm, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: Sp.sm, vertical: 2),
                   decoration: BoxDecoration(
                     color: _roleColor(employee.role).withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(Rad.pill),

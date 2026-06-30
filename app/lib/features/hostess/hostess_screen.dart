@@ -69,9 +69,11 @@ class HostessScreen extends ConsumerWidget {
                       icon: Icons.event_seat,
                       message: 'Nadie en espera. Agrega un grupo.')
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
+                      padding:
+                          const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
                       itemCount: waiting.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: Sp.md),
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: Sp.md),
                       itemBuilder: (_, i) => _EntryCard(
                         index: i + 1,
                         entry: waiting[i],
@@ -138,7 +140,9 @@ class HostessScreen extends ConsumerWidget {
   /// elegida (la mesa pasa a "por atender" → notifica a los meseros).
   Future<void> _seat(BuildContext context, WidgetRef ref, WaitlistEntry entry,
       List<RestaurantTable> tables) async {
-    final fit = tables.where((t) => t.isFree && t.capacity >= entry.size).toList()
+    final fit = tables
+        .where((t) => t.isFree && t.capacity >= entry.size)
+        .toList()
       ..sort((a, b) => a.capacity.compareTo(b.capacity));
 
     final tableId = await showModalBottomSheet<String>(
@@ -248,8 +252,7 @@ class _EntryCard extends StatelessWidget {
             ),
             child: Text('$index',
                 style: const TextStyle(
-                    color: BrandColors.orangeInk,
-                    fontWeight: FontWeight.w800)),
+                    color: BrandColors.orangeInk, fontWeight: FontWeight.w800)),
           ),
           const SizedBox(width: Sp.md),
           Expanded(

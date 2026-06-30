@@ -142,8 +142,7 @@ class _MenuPanelState extends ConsumerState<_MenuPanel> {
                   onChanged: (v) => setState(() => _search = v),
                   decoration: const InputDecoration(
                     hintText: 'Buscar platillo…',
-                    prefixIcon:
-                        Icon(Icons.search, color: BrandColors.inkFaint),
+                    prefixIcon: Icon(Icons.search, color: BrandColors.inkFaint),
                     isDense: true,
                   ),
                 ),
@@ -432,11 +431,11 @@ class _CartPanel extends ConsumerWidget {
                       horizontal: Sp.md, vertical: Sp.sm),
                   itemCount: account.lines.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 2),
-                  itemBuilder: (_, i) => _LineTile(
-                          line: account.lines[i], notifier: notifier)
-                      .animate()
-                      .fadeIn(duration: 200.ms)
-                      .slideX(begin: 0.1, end: 0, curve: Curves.easeOut),
+                  itemBuilder: (_, i) =>
+                      _LineTile(line: account.lines[i], notifier: notifier)
+                          .animate()
+                          .fadeIn(duration: 200.ms)
+                          .slideX(begin: 0.1, end: 0, curve: Curves.easeOut),
                 ),
         ),
         Container(
@@ -460,9 +459,8 @@ class _CartPanel extends ConsumerWidget {
               GradientButton(
                 label: 'Enviar a Cocina/Barra',
                 icon: Icons.send_rounded,
-                onTap: account.hasPending
-                    ? () => _send(context, notifier)
-                    : null,
+                onTap:
+                    account.hasPending ? () => _send(context, notifier) : null,
               ),
               const SizedBox(height: Sp.sm),
               Row(
@@ -483,7 +481,8 @@ class _CartPanel extends ConsumerWidget {
                           ? null
                           : () => ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Dividir cuenta — próximamente')),
+                                    content:
+                                        Text('Dividir cuenta — próximamente')),
                               ),
                       icon: const Icon(Icons.call_split, size: 20),
                       label: const Text('Dividir'),
@@ -620,8 +619,7 @@ class _CartBar extends ConsumerWidget {
             isScrollControlled: true,
             backgroundColor: BrandColors.surface,
             shape: const RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(Rad.xl)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
             ),
             builder: (_) => FractionallySizedBox(
               heightFactor: 0.88,

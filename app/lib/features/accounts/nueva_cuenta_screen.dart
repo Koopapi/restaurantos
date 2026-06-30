@@ -163,8 +163,7 @@ class _NuevaCuentaScreenState extends ConsumerState<NuevaCuentaScreen> {
       ref.invalidate(openAccountsProvider);
       ref.read(currentAccountIdProvider.notifier).state = acc.id;
       final role = ref.read(authControllerProvider).employee?.role ?? '';
-      final idx =
-          destinationsForRole(role).indexWhere((d) => d.label == 'POS');
+      final idx = destinationsForRole(role).indexWhere((d) => d.label == 'POS');
       if (idx >= 0) ref.read(navIndexProvider.notifier).state = idx;
     } catch (e) {
       if (mounted) {

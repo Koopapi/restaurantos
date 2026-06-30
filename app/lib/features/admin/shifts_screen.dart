@@ -10,8 +10,18 @@ import '../../widgets/ui_kit.dart';
 
 const _dayLetters = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 const _months = [
-  'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-  'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+  'ene',
+  'feb',
+  'mar',
+  'abr',
+  'may',
+  'jun',
+  'jul',
+  'ago',
+  'sep',
+  'oct',
+  'nov',
+  'dic'
 ];
 
 String _iso(DateTime d) =>
@@ -20,11 +30,23 @@ String _iso(DateTime d) =>
 ({String label, Color color, String time}) _typeViz(String type) {
   switch (type) {
     case 'matutino':
-      return (label: 'Matutino', color: const Color(0xFF3B82F6), time: '09:00 – 17:00');
+      return (
+        label: 'Matutino',
+        color: const Color(0xFF3B82F6),
+        time: '09:00 – 17:00'
+      );
     case 'vespertino':
-      return (label: 'Vespertino', color: const Color(0xFF8B5CF6), time: '14:00 – 22:00');
+      return (
+        label: 'Vespertino',
+        color: const Color(0xFF8B5CF6),
+        time: '14:00 – 22:00'
+      );
     default:
-      return (label: 'Completo', color: const Color(0xFF22C55E), time: '09:00 – 21:00');
+      return (
+        label: 'Completo',
+        color: const Color(0xFF22C55E),
+        time: '09:00 – 21:00'
+      );
   }
 }
 
@@ -71,7 +93,9 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> {
   Widget build(BuildContext context) {
     final shiftsAsync = ref.watch(shiftsProvider);
     final employees = ref.watch(employeesProvider).value ?? const [];
-    final days = [for (var i = 0; i < 7; i++) _weekStart.add(Duration(days: i))];
+    final days = [
+      for (var i = 0; i < 7; i++) _weekStart.add(Duration(days: i))
+    ];
     final selectedIso = _iso(days[_selectedDay]);
 
     String nameOf(String id) {
@@ -118,7 +142,8 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> {
                     onPressed: () => _addShift(context, selectedIso),
                     icon: const Icon(Icons.add),
                     label: const Text('Agregar Turno'),
-                    style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                    style:
+                        FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                   ),
                 ],
               ),
@@ -183,9 +208,11 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> {
                       ),
                     )
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
+                      padding:
+                          const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.xl),
                       itemCount: dayShifts.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: Sp.sm),
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: Sp.sm),
                       itemBuilder: (_, i) => _ShiftTile(
                         shift: dayShifts[i],
                         employeeName: nameOf(dayShifts[i].employeeId),
@@ -220,8 +247,7 @@ class _ShiftsScreenState extends ConsumerState<ShiftsScreen> {
         children: [
           const Icon(Icons.schedule, size: 16, color: BrandColors.orangeInk),
           const SizedBox(width: Sp.sm),
-          Text('$label: ',
-              style: const TextStyle(color: BrandColors.inkSoft)),
+          Text('$label: ', style: const TextStyle(color: BrandColors.inkSoft)),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
         ],
       );

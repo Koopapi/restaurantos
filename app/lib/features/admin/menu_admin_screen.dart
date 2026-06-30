@@ -119,7 +119,8 @@ class _MenuAdminScreenState extends ConsumerState<MenuAdminScreen> {
                 children: [
                   for (final entry in byCat.entries) ...[
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(Sp.xs, Sp.md, 0, Sp.sm),
+                      padding:
+                          const EdgeInsets.fromLTRB(Sp.xs, Sp.md, 0, Sp.sm),
                       child: Text(entry.key,
                           style: const TextStyle(
                               fontWeight: FontWeight.w800,
@@ -192,7 +193,8 @@ class _MenuAdminScreenState extends ConsumerState<MenuAdminScreen> {
             const SizedBox(height: Sp.md),
             TextField(
               controller: price,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration:
                   const InputDecoration(labelText: 'Precio', prefixText: '\$ '),
             ),
@@ -309,7 +311,8 @@ class _DetailPanel extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(m.name,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+              style:
+                  const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
           const SizedBox(height: Sp.xs),
           Text('${m.category} · ${m.station}',
               style: const TextStyle(color: BrandColors.inkSoft)),
