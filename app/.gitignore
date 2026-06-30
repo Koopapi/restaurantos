@@ -4,7 +4,7 @@
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
-pubspec.lock
+# pubspec.lock se versiona (app): builds reproducibles en un clon limpio.
 
 # IDE
 .idea/

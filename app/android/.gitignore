@@ -1,8 +1,7 @@
-gradle-wrapper.jar
+# gradle wrapper (gradlew, gradlew.bat, gradle-wrapper.jar) se versiona
+# para que un clon limpio compile sin regenerarlo.
 /.gradle
 /captures/
-/gradlew
-/gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
 .cxx/

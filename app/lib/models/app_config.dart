@@ -1,9 +1,11 @@
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 /// Configuración de negocio + marca blanca (`docs/api.md`).
 class AppConfig {
   final String brandName;
   final String? primaryColor;
+  final String? logoUrl;
   final String taxLabel;
   final num taxRate;
   final int urgencyMinutes;
@@ -18,11 +20,22 @@ class AppConfig {
     required this.maxQtyPerLine,
     required this.currency,
     this.primaryColor,
+    this.logoUrl,
   });
+
+  /// Color de marca parseado desde "#RRGGBB" (fallback naranja El Pirrus).
+  Color get primaryColorValue {
+    final c = primaryColor;
+    if (c != null && c.startsWith('#') && c.length == 7) {
+      return Color(int.parse('FF${c.substring(1)}', radix: 16));
+    }
+    return const Color(0xFFFF9800);
+  }
 
   factory AppConfig.fromJson(Map<String, dynamic> j) => AppConfig(
         brandName: (j['brandName'] as String?) ?? 'RestaurantOS',
         primaryColor: j['primaryColor'] as String?,
+        logoUrl: j['logoUrl'] as String?,
         taxLabel: (j['taxLabel'] as String?) ?? 'IVA',
         taxRate: (j['taxRate'] as num?) ?? 0,
         urgencyMinutes: (j['urgencyMinutes'] as num?)?.toInt() ?? 15,

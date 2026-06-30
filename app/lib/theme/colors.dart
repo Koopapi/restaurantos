@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// Semilla de marca (Material You). Configurable por tenant (marca blanca).
-const kSeedColor = Color(0xFF6750A4);
+/// Naranja El Pirrus — base clara para legibilidad bajo sol.
+const kSeedColor = Color(0xFFFF9800);
 
 /// Colores semánticos de operación que Material 3 no incluye
 /// (success / warning / info). Se exponen como ThemeExtension.

@@ -17,9 +17,7 @@ RestaurantOS/
 ├── infra/          # docker-compose del stack
 ├── scripts/        # bootstrap.sh (levanta todo con un comando)
 ├── docs/
-│   ├── design/     # System design + pantallas exportadas (PNG)
-│   ├── specs/      # Especificaciones de diseño/implementación
-│   └── reference/  # Capturas del build anterior (referencia)
+│   └── design/     # System design + pantallas exportadas (PNG)
 ├── .github/        # Workflows de CI/CD y plantillas
 └── docs/branching.md  # Estrategia de ramas
 ```
@@ -69,7 +67,6 @@ flutter run        # con un emulador o dispositivo Android conectado
 ## Documentación
 
 - **System design (1 hoja):** `docs/design/M3-00-System-Design.png`
-- **Especificación de implementación Flutter:** `docs/specs/RestaurantOS-Flutter-Material3.md`
 - **Estrategia de ramas y flujo de trabajo:** `docs/branching.md`
 - **Pantallas (diseño Material 3):** `docs/design/`
 

@@ -5,7 +5,9 @@ import '../core/api_client.dart';
 import '../features/auth/employee.dart';
 import '../models/admin.dart';
 import '../models/app_config.dart';
+import '../models/menu_collection.dart';
 import '../models/menu_item.dart';
+import '../models/shift.dart';
 
 /// Acceso REST a la capa de administración (`docs/api-admin.md`).
 class AdminRepository {
@@ -138,9 +140,46 @@ class AdminRepository {
     await _dio.patch('/menu/$id/availability', data: {'available': available});
   }
 
-  Future<void> updateMenuItem(String id, {num? price}) async {
-    await _dio.put('/menu/$id', data: {if (price != null) 'price': price});
+  Future<void> updateMenuItem(
+    String id, {
+    num? price,
+    String? name,
+    String? category,
+    String? station,
+    String? description,
+  }) async {
+    await _dio.put('/menu/$id', data: {
+      if (price != null) 'price': price,
+      if (name != null) 'name': name,
+      if (category != null) 'category': category,
+      if (station != null) 'station': station,
+      if (description != null) 'description': description,
+    });
   }
+
+  // --- Colecciones (menús) ---
+  Future<List<MenuCollection>> collections() async {
+    final r = await _dio.get<List<dynamic>>('/menu-collections');
+    return r.data!
+        .map((e) => MenuCollection.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MenuCollection> createCollection({
+    required String name,
+    String? schedule,
+    required List<String> itemIds,
+  }) async {
+    final r = await _dio.post<Map<String, dynamic>>('/menu-collections', data: {
+      'name': name,
+      if (schedule != null && schedule.isNotEmpty) 'schedule': schedule,
+      'itemIds': itemIds,
+    });
+    return MenuCollection.fromJson(r.data!);
+  }
+
+  Future<void> activateCollection(String id) async =>
+      _dio.post('/menu-collections/$id/activate');
 
   Future<MenuItem> createMenuItem({
     required String name,
@@ -162,6 +201,34 @@ class AdminRepository {
     final r = await _dio.put<Map<String, dynamic>>('/config', data: fields);
     return AppConfig.fromJson(r.data!);
   }
+
+  // --- Turnos ---
+  Future<List<Shift>> shifts({String? week}) async {
+    final r = await _dio.get<List<dynamic>>('/shifts',
+        queryParameters: {if (week != null) 'week': week});
+    return r.data!
+        .map((e) => Shift.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Shift> createShift({
+    required String employeeId,
+    required String date,
+    required String type,
+    String? start,
+    String? end,
+  }) async {
+    final r = await _dio.post<Map<String, dynamic>>('/shifts', data: {
+      'employeeId': employeeId,
+      'date': date,
+      'type': type,
+      if (start != null && start.isNotEmpty) 'start': start,
+      if (end != null && end.isNotEmpty) 'end': end,
+    });
+    return Shift.fromJson(r.data!);
+  }
+
+  Future<void> deleteShift(String id) async => _dio.delete('/shifts/$id');
 }
 
 final adminRepositoryProvider =

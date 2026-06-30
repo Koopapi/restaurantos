@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../state/providers.dart';
 import '../accounts/accounts_screen.dart';
+import '../accounts/nueva_cuenta_screen.dart';
 import '../admin/brand_screen.dart';
 import '../admin/dashboard_screen.dart';
 import '../admin/employees_screen.dart';
@@ -10,8 +11,10 @@ import '../admin/inventory_screen.dart';
 import '../admin/menu_admin_screen.dart';
 import '../admin/purchasing_screen.dart';
 import '../admin/reports_screen.dart';
+import '../admin/shifts_screen.dart';
 import '../auth/auth_controller.dart';
 import '../auth/employee.dart';
+import '../hostess/hostess_screen.dart';
 import '../kds/kds_screen.dart';
 import '../pos/pos_screen.dart';
 import '../tables/tables_screen.dart';
@@ -88,6 +91,10 @@ class HomeShell extends ConsumerWidget {
         return const PosScreen();
       case 'Mesas':
         return const TablesScreen();
+      case 'Lista de espera':
+        return const HostessScreen();
+      case 'Nueva Cuenta':
+        return const NuevaCuentaScreen();
       case 'Cuentas':
       case 'Cobro':
         return const AccountsScreen();
@@ -107,6 +114,8 @@ class HomeShell extends ConsumerWidget {
         return const PurchasingScreen();
       case 'Empleados':
         return const EmployeesScreen();
+      case 'Turnos':
+        return const ShiftsScreen();
       case 'Reportes':
         return const ReportsScreen();
       case 'Marca blanca':

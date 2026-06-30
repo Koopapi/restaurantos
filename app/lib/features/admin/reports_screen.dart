@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/app_config.dart';
 import '../../state/admin_providers.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/common.dart';
+import '../../widgets/ui_kit.dart';
 
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
@@ -14,13 +16,32 @@ class ReportsScreen extends ConsumerWidget {
     final sales = ref.watch(salesReportProvider);
     final top = ref.watch(topProductsProvider);
     final byEmp = ref.watch(employeesReportProvider);
-    final theme = Theme.of(context);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Sp.xl),
       children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text('Reportes y Análisis',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w800)),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Exportar CSV — próximamente')),
+              ),
+              icon: const Icon(Icons.download, size: 18),
+              label: const Text('Exportar'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+            ),
+          ],
+        ),
+        const SizedBox(height: Sp.md),
         Align(
-          alignment: Alignment.centerRight,
+          alignment: Alignment.centerLeft,
           child: SegmentedButton<String>(
             segments: const [
               ButtonSegment(value: 'hoy', label: Text('Hoy')),
@@ -33,7 +54,7 @@ class ReportsScreen extends ConsumerWidget {
                 ref.read(reportRangeProvider.notifier).state = s.first,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: Sp.lg),
         sales.when(
           loading: () => const Padding(
               padding: EdgeInsets.all(24),
@@ -42,132 +63,176 @@ class ReportsScreen extends ConsumerWidget {
           data: (r) => Column(
             children: [
               Wrap(
-                spacing: 12,
-                runSpacing: 12,
+                spacing: Sp.md,
+                runSpacing: Sp.md,
                 children: [
-                  _stat(context, money(r.totalSales), 'Ventas'),
-                  _stat(context, '${r.tickets}', 'Tickets'),
-                  _stat(context, money(r.avgTicket), 'Ticket promedio'),
-                  _stat(context, money(r.tips), 'Propinas'),
+                  _Metric(value: money(r.totalSales), label: 'Ventas totales'),
+                  _Metric(value: '${r.tickets}', label: 'Tickets'),
+                  _Metric(value: money(r.avgTicket), label: 'Ticket promedio'),
+                  _Metric(value: money(r.tips), label: 'Propinas'),
                 ],
               ),
-              const SizedBox(height: 12),
-              if (r.byPaymentMethod.isNotEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Por método de pago',
-                            style: theme.textTheme.titleMedium),
-                        const SizedBox(height: 8),
-                        for (final m in r.byPaymentMethod)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('${m.method} (${m.count})'),
-                                Text(money(m.amount),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700)),
-                              ],
+              const SizedBox(height: Sp.lg),
+              _Section(
+                title: 'Por método de pago',
+                child: r.byPaymentMethod.isEmpty
+                    ? const _Empty()
+                    : Column(
+                        children: [
+                          for (final m in r.byPaymentMethod)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.payments_outlined,
+                                      size: 18, color: BrandColors.orangeInk),
+                                  const SizedBox(width: Sp.sm),
+                                  Text('${m.method} · ${m.count}'),
+                                  const Spacer(),
+                                  Text(money(m.amount),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w800)),
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
+                        ],
+                      ),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        _ListCard(
+        const SizedBox(height: Sp.md),
+        _Section(
           title: 'Platillos más vendidos',
           child: top.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('$e'),
-            data: (items) => Column(
-              children: [
-                for (final p in items)
-                  ListTile(
-                    dense: true,
-                    title: Text(p.name),
-                    trailing: Text('${p.qty} · ${money(p.revenue)}'),
+            data: (items) => items.isEmpty
+                ? const _Empty()
+                : Column(
+                    children: [
+                      for (var i = 0; i < items.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              _rank(i + 1),
+                              const SizedBox(width: Sp.md),
+                              Expanded(child: Text(items[i].name)),
+                              Text(
+                                  '${items[i].qty} · ${money(items[i].revenue)}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: BrandColors.inkSoft)),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
-                if (items.isEmpty)
-                  const ListTile(dense: true, title: Text('Sin datos')),
-              ],
-            ),
           ),
         ),
-        const SizedBox(height: 16),
-        _ListCard(
+        const SizedBox(height: Sp.md),
+        _Section(
           title: 'Ventas por empleado',
           child: byEmp.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('$e'),
-            data: (items) => Column(
-              children: [
-                for (final e in items)
-                  ListTile(
-                    dense: true,
-                    title: Text(e.name),
-                    trailing: Text('${money(e.sales)} · ${e.tickets} tickets'),
+            data: (items) => items.isEmpty
+                ? const _Empty()
+                : Column(
+                    children: [
+                      for (final e in items)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text(e.name)),
+                              Text('${money(e.sales)} · ${e.tickets} tickets',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: BrandColors.inkSoft)),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
-                if (items.isEmpty)
-                  const ListTile(dense: true, title: Text('Sin datos')),
-              ],
-            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _stat(BuildContext context, String value, String label) {
-    final theme = Theme.of(context);
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+  Widget _rank(int n) => Container(
+        width: 24,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            color: BrandColors.orangeSoft,
+            borderRadius: BorderRadius.circular(8)),
+        child: Text('$n',
+            style: const TextStyle(
+                color: BrandColors.orangeInk,
+                fontWeight: FontWeight.w800,
+                fontSize: 12)),
+      );
+}
+
+class _Metric extends StatelessWidget {
+  final String value;
+  final String label;
+  const _Metric({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 220,
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style:
+                    const TextStyle(color: BrandColors.inkSoft, fontSize: 13)),
+            const SizedBox(height: Sp.xs),
+            Text(value,
+                style:
+                    const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const _Section({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(Sp.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: theme.textTheme.headlineSmall),
-          Text(label,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          const SizedBox(height: Sp.md),
+          child,
         ],
       ),
     );
   }
 }
 
-class _ListCard extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const _ListCard({required this.title, required this.child});
-
+class _Empty extends StatelessWidget {
+  const _Empty();
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.symmetric(vertical: Sp.lg),
+        child: Text('Sin datos en el período',
+            style: TextStyle(color: BrandColors.inkFaint)),
+      );
 }

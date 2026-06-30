@@ -4,6 +4,8 @@ import '../core/realtime.dart';
 import '../data/admin_repository.dart';
 import '../features/auth/employee.dart';
 import '../models/admin.dart';
+import '../models/menu_collection.dart';
+import '../models/shift.dart';
 
 /// Rango seleccionado para Dashboard/Reportes (hoy | 7d/semana | 30d/mes).
 final dashRangeProvider = StateProvider<String>((ref) => '7d');
@@ -79,3 +81,11 @@ class EmployeesNotifier extends AsyncNotifier<List<Employee>> {
 final employeesProvider =
     AsyncNotifierProvider<EmployeesNotifier, List<Employee>>(
         EmployeesNotifier.new);
+
+/// Todos los turnos (se filtran por día en la UI).
+final shiftsProvider = FutureProvider.autoDispose<List<Shift>>(
+    (ref) => ref.watch(adminRepositoryProvider).shifts());
+
+/// Colecciones de menú.
+final collectionsProvider = FutureProvider.autoDispose<List<MenuCollection>>(
+    (ref) => ref.watch(adminRepositoryProvider).collections());

@@ -16,6 +16,7 @@ List<AppDestination> destinationsForRole(String role) {
     case 'mesero':
       return const [
         AppDestination('POS', Icons.point_of_sale),
+        AppDestination('Nueva Cuenta', Icons.note_add),
         AppDestination('Cuentas', Icons.receipt_long),
         AppDestination('Mesas', Icons.table_restaurant),
         AppDestination('Cocina', Icons.soup_kitchen),
@@ -38,6 +39,7 @@ List<AppDestination> destinationsForRole(String role) {
         AppDestination('Inventario', Icons.inventory_2),
         AppDestination('Compras', Icons.shopping_cart),
         AppDestination('Empleados', Icons.badge),
+        AppDestination('Turnos', Icons.calendar_month),
         AppDestination('Reportes', Icons.bar_chart),
       ];
     case 'admin':
@@ -48,6 +50,7 @@ List<AppDestination> destinationsForRole(String role) {
         AppDestination('Inventario', Icons.inventory_2),
         AppDestination('Compras', Icons.shopping_cart),
         AppDestination('Empleados', Icons.badge),
+        AppDestination('Turnos', Icons.calendar_month),
         AppDestination('Reportes', Icons.bar_chart),
         AppDestination('Marca blanca', Icons.palette),
       ];

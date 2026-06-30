@@ -19,8 +19,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('RestaurantOS'), findsOneWidget);
-    expect(find.text('Inicia sesión con tu PIN'), findsOneWidget);
+    expect(find.text('Bienvenido'), findsOneWidget);
+    expect(find.text('Ingresa tu PIN para entrar a tu turno'), findsOneWidget);
     // El teclado numérico muestra los dígitos.
     expect(find.text('1'), findsOneWidget);
     expect(find.text('0'), findsOneWidget);
